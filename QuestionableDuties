@@ -5,7 +5,7 @@ while GetCharacterCondition(1) == true do
 -- If entering a duty instance, then turn on BMRAI and auto rotation
     
        if  GetCharacterCondition(34) == true or GetCharacterCondition(56) == true or GetCharacterCondition(91) == true or GetCharacterCondition(95) == true then
-          yield("/wait 2.0041")
+          yield("/wait 1.0041")
           yield("/bmrai on")
           yield("/bmrai followtarget on")
           yield("/bmrai followcombat on")
@@ -21,7 +21,7 @@ while GetCharacterCondition(1) == true do
 -- When duty is over start Questionable and turn off BMRAI and RSR
     
           if GetCharacterCondition(34) == false and GetCharacterCondition(56) == false and GetCharacterCondition(91) == false and GetCharacterCondition(95) == false then
-             yield("/wait 2.0341")
+             yield("/wait 1.0341")
              yield("/qst start")
              yield("/bmrai off")
              yield("/rotation off")
