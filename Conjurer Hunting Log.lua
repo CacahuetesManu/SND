@@ -1,4 +1,4 @@
--- Load the JSON package to read the JSON format
+-- Load the JSON package to read the JSON . ALSO you NEED the chatcoordinates plugin
 json = require("C:\\Users\\PUT IN YOUR USER PATH\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\json.lua")
 
 
