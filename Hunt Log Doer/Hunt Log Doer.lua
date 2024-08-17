@@ -2,11 +2,10 @@
 route = "GC"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 3
--- Since Kill Count doesn't work you just need to mount up to move on to next mob on the list.
 -------------------REQUIRED FILES---------------------
 ---YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,VNAVMESH, RSR, and BMR.
 
---Load Required Files. YOU NEED TO UPDATE THE LUA PATH IN THE SND CONFIG TO MATCH WHERE YOU PUT FILES
+--Load Required Files
 --JSON handler is from https://github.com/Egor-Skriptunoff/json4lua/blob/master/json.lua
 local json = require("json")
 
@@ -14,8 +13,7 @@ local json = require("json")
 require("Territories")
 --Monster log is from Hunty Plugin https://github.com/Infiziert90/Hunty/tree/mas
 open = io.open
---CHANGE THE DIRECTORY PATH TO MATCH WHERE YOU PUT THE FILE
-monsters = open("C:\\Users\\%YOUR USER NAME ON PC%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+monsters = open("C:\\Users\\%YOUR USER PATH%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 local stringmonsters = monsters:read "*a"
 monsters:close()
 
@@ -24,7 +22,12 @@ monsters:close()
 -- Call user provided input to figure out if we should work on Class Log or Hunt Log
 
 if route == "class" then
-    LogFinder = tostring(GetClassJobId())
+    if GetClassJobId() > 18 then
+        ClassID = GetClassJobId() - 18
+    else
+        ClassID = GetClassJobId()
+    end
+    LogFinder = tostring(ClassID)
 elseif route == "GC" then
     LogFinder = tostring(GetPlayerGC() + 10000)
 end
