@@ -15,7 +15,7 @@ require("Territories")
 open = io.open
 
 --CHANGE THIS PATH
-monsters = open("C:\\Users\\manue\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+monsters = open("C:\\Users\\%PUT YOUR USERNAME NAME HERE%%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 
 local stringmonsters = monsters:read "*a"
 monsters:close()
