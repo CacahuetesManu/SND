@@ -13,7 +13,10 @@ local json = require("json")
 require("Territories")
 --Monster log is from Hunty Plugin https://github.com/Infiziert90/Hunty/tree/mas
 open = io.open
-monsters = open("C:\\Users\\%YOUR USER PATH%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+
+--CHANGE THIS PATH
+monsters = open("C:\\Users\\%YOUR PATH%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+
 local stringmonsters = monsters:read "*a"
 monsters:close()
 
@@ -22,11 +25,15 @@ monsters:close()
 -- Call user provided input to figure out if we should work on Class Log or Hunt Log
 
 if route == "class" then
-    if GetClassJobId() > 18 then
-        ClassID = GetClassJobId() - 18
-    else
-        ClassID = GetClassJobId()
-    end
+if GetClassJobId() > 18 then
+ClassID = GetClassJobId() - 18
+elseif GetClassJobId() == 26 or GetClassJobId() == 27 or GetClassJobId() == 28
+ClassID = 26
+elseif GetClassJobId() == 29 or GetClassJobId() == 30
+ClassID = 29
+else
+ClassID = GetClassJobId()
+end 
     LogFinder = tostring(ClassID)
 elseif route == "GC" then
     LogFinder = tostring(GetPlayerGC() + 10000)
@@ -236,16 +243,16 @@ for i = 1, #CurrentLog do
         mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
         ZoneName = Territories[tostring(mobZone)]
 
-        yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
+        yield("/echo ".. mobName .. " in "..ZoneName .. " is next! We need " .. KillsNeeded)
 
         --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
         yield("/wait 1")
-        yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+        yield("/coord " .. mobX .. " " .. mobY.." :"..ZoneName)
         yield("/wait 2")
         --If you are in the same zone, no need to teleport
 
         if IsInZone(GetFlagZone()) == false then
-            yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+            yield("/ctp " .. mobX .. " " .. mobY.." :"..ZoneName)
             yield("/wait 10.54")
         end
 
