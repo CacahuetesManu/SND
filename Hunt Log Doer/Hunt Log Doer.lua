@@ -27,9 +27,9 @@ monsters:close()
 if route == "class" then
 if GetClassJobId() > 18 then
 ClassID = GetClassJobId() - 18
-elseif GetClassJobId() == 26 or GetClassJobId() == 27 or GetClassJobId() == 28
+elseif GetClassJobId() == 26 or GetClassJobId() == 27 or GetClassJobId() == 28 then
 ClassID = 26
-elseif GetClassJobId() == 29 or GetClassJobId() == 30
+elseif GetClassJobId() == 29 or GetClassJobId() == 30 then
 ClassID = 29
 else
 ClassID = GetClassJobId()
