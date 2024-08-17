@@ -15,7 +15,7 @@ require("Territories")
 open = io.open
 
 --CHANGE THIS PATH
-monsters = open("C:\\Users\\%YOUR PATH%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+monsters = open("C:\\Users\\manue\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 
 local stringmonsters = monsters:read "*a"
 monsters:close()
@@ -25,15 +25,16 @@ monsters:close()
 -- Call user provided input to figure out if we should work on Class Log or Hunt Log
 
 if route == "class" then
-if GetClassJobId() > 18 then
-ClassID = GetClassJobId() - 18
-elseif GetClassJobId() == 26 or GetClassJobId() == 27 or GetClassJobId() == 28 then
-ClassID = 26
-elseif GetClassJobId() == 29 or GetClassJobId() == 30 then
-ClassID = 29
-else
-ClassID = GetClassJobId()
-end 
+    if GetClassJobId() > 18 and GetClassJobId() < 25 then
+        ClassID = GetClassJobId() - 18
+    elseif GetClassJobId() == 26 or GetClassJobId() == 27 or GetClassJobId() == 28 then
+        ClassID = 26
+    elseif GetClassJobId() == 29 or GetClassJobId() == 30 then
+        ClassID = 29
+    else
+        ClassID = GetClassJobId()
+    end
+
     LogFinder = tostring(ClassID)
 elseif route == "GC" then
     LogFinder = tostring(GetPlayerGC() + 10000)
