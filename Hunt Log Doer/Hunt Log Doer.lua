@@ -2,6 +2,7 @@
 route = "GC"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 3
+-- Since Kill Count doesn't work you just need to mount up to move on to next mob on the list.
 -------------------REQUIRED FILES---------------------
 ---YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,VNAVMESH, RSR, and BMR.
 
