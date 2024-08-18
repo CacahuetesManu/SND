@@ -1,7 +1,7 @@
 --Choose either "class" to do your class log or "GC" to do your Grand Company Log
-route = "GC"
+route = "class"
 --Choose what rank to start 1,2, 3, 4 or 5
-RankToDo = 3
+RankToDo = 1
 -------------------REQUIRED FILES---------------------
 ---YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,VNAVMESH, RSR, and BMR.
 
@@ -15,7 +15,8 @@ require("Territories")
 open = io.open
 
 --CHANGE THIS PATH
-monsters = open("C:\\Users\\%PUT YOUR USERNAME NAME HERE%%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+monsters = open(
+    "C:\\Users\\%YOUR PATH USERNAME%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 
 local stringmonsters = monsters:read "*a"
 monsters:close()
@@ -227,120 +228,223 @@ function DiscoverNodeViaAction()
     end
 end
 
+function TargetNearestObjectKind()
+    local radius = 100
+    local subKind = subKind or 5
+    local nearby_objects = GetNearbyObjectNames(radius ^ 2, 2)
+    local names = {}
+
+    if nearby_objects and type(nearby_objects) == "userdata" and nearby_objects.Count > 0 then
+        for i = 0, nearby_objects.Count - 1 do
+            if names[nearby_objects[i]] == nil then
+                names[nearby_objects[i]] = 0
+            else
+                names[nearby_objects[i]] = names[nearby_objects[i]] + 1
+            end
+
+            local target = nearby_objects[i] .. " <list." .. names[nearby_objects[i]] .. ">"
+
+            TargetWithSND(target)
+
+            if not GetTargetName() or nearby_objects[i] ~= GetTargetName()
+                or (mobName ~= GetTargetName())
+                or (objectKind ~= 2)
+                or (objectKind ~= 2 and subKind == GetTargetSubKind() and GetTargetHPP() <= 0) then
+            else
+                PathMoveTo(GetObjectRawXPos(nearby_objects[i]), GetObjectRawYPos(nearby_objects[i]),
+                    GetObjectRawYPos(nearby_objects[i]))
+                break
+            end
+        end
+        TargetWithSND(target)
+    end
+end
+
+function TargetWithSND(target_name)
+    local user_settings = { GetSNDProperty("UseSNDTargeting"), GetSNDProperty("StopMacroIfTargetNotFound") }
+    SetSNDProperty("UseSNDTargeting", "true")
+    SetSNDProperty("StopMacroIfTargetNotFound", "false")
+    yield("/target " .. target_name)
+    SetSNDProperty("UseSNDTargeting", tostring(user_settings[1]))
+    SetSNDProperty("StopMacroIfTargetNotFound", tostring(user_settings[2]))
+end
+
+function ClassorGCID()
+    if GetClassJobId() > 18 and GetClassJobId() < 25 then
+        ClassID = GetClassJobId() - 18
+    elseif GetClassJobId() == 26 or GetClassJobId() == 27 or GetClassJobId() == 28 then
+        ClassID = 26
+    elseif GetClassJobId() == 29 or GetClassJobId() == 30 then
+        ClassID = 29
+    else
+        ClassID = GetClassJobId()
+    end
+
+    GCID = GetPlayerGC()
+
+    if route == "class" then
+        LogFinder = tostring(ClassID)
+    elseif route == "GC" then
+        LogFinder = tostring(GCID + 10000)
+    end
+end
+
+function loadupHuntlog()
+    yield("/hlog")
+    route = "class"
+    GCID = 2
+    ClassID = GetClassJobId()
+    rank = RankToDo - 1
+    yield("/wait 1")
+    if ClassID == 1 then
+        pcallClassID = 0 -- Gladiator
+    elseif ClassID == 2 then
+        pcallClassID = 1 -- Pugilist
+    elseif ClassID == 3 then
+        pcallClassID = 2 -- Marauder
+    elseif ClassID == 4 then
+        pcallClassID = 3 -- Lancer
+    elseif ClassID == 5 then
+        pcallClassID = 4 -- Archer
+    elseif ClassID == 6 then
+        pcallClassID = 6 --Conjurer
+    elseif ClassID == 7 then
+        pcallClassID = 7 -- Thaumaturge
+    elseif ClassID == 26 then
+        pcallClassID = 8 -- Arcanist
+    elseif ClassID == 29 then
+        pcallClassID = 5 -- Rogue
+    end
+
+    if route == "GC" then
+        yield("/pcall MonsterNote true 3 9 " .. GCID) -- this is not really needed, but it's to make sure it's always working
+        yield("/wait 1")
+    elseif route == "class" then
+        yield("/pcall MonsterNote true 0 " .. pcallClassID) -- this will swap to the GLA tab
+        yield("/wait 1")
+    end
+    yield("/pcall MonsterNote true 1 " .. rank) -- this will swap rank pages to page 2
+    yield("/wait 1")
+    yield("/pcall MonsterNote true 2  2")       -- this will change it to show incomplete
+    yield("/wait 1")
+end
+
+--Wrapper handling to show incomplete targets
+function IncompleteTargets(route)
+    if IsNodeVisible("MonsterNote", 1, 46, 5, 2) == false then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 18, 4)
+        --yield("/echo ".. GetNodeText("MonsterNote", 2, 18, 4))
+    elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == false then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 19, 4)
+        --yield("/echo ".. GetNodeText("MonsterNote", 2, 19, 4))
+    elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == true then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
+        --yield("/echo ".. GetNodeText("MonsterNote", 2, 20, 4))
+    end
+
+
+    yield("/wait 1")
+    return NextIncompleteTarget
+end
+
 -----------------------------------START OF CODE-------------------------------------------------------
 
--- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
+-- leave your hlog open or else script wont work.
 
+-- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
+ClassorGCID()
 json.traverse(stringmonsters, my_callback)
 
 -- Now we loop through the table and extract each mob, territory, location and kills needed in order to execute our hunt log doer
 
 for i = 1, #CurrentLog do
+    if IsNodeVisible("MonsterNote", 1) == false then
+        loadupHuntlog()
+    end
     for j = 1, #CurrentLog[i].Monsters do
-        KillsNeeded = CurrentLog[i].Monsters[j].Count
         mobName = CurrentLog[i].Monsters[j].Name
-        mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
-        mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
-        mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
-        ZoneName = Territories[tostring(mobZone)]
+        if IncompleteTargets() == mobName then
+            --yield("/echo " .. NextIncompleteTarget)
+            KillsNeeded = CurrentLog[i].Monsters[j].Count
+            mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
+            mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
+            mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
+            ZoneName = Territories[tostring(mobZone)]
 
-        yield("/echo ".. mobName .. " in "..ZoneName .. " is next! We need " .. KillsNeeded)
+            yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
 
-        --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
-        yield("/wait 1")
-        yield("/coord " .. mobX .. " " .. mobY.." :"..ZoneName)
-        yield("/wait 2")
-        --If you are in the same zone, no need to teleport
-
-        if IsInZone(GetFlagZone()) == false then
-            yield("/ctp " .. mobX .. " " .. mobY.." :"..ZoneName)
-            yield("/wait 10.54")
-        end
-
-
-        --Mount up if needed
-        if GetCharacterCondition(4) == false then
-            yield('/gaction "mount roulette"')
-            yield("/wait 3.54")
-        end
-
-        -- Now convert those simple map coordinates to RAW coordinates that vnav uses
-        rawX = GetFlagXCoord()
-        rawY = 1024
-        rawZ = GetFlagYCoord()
-        yield("/echo Position acquired " .. rawX .. ", " .. rawY .. ", " .. rawZ)
-        yield("/gaction jump")
-        yield("/wait 1")
-
-        DiscoverNodeViaAction()
-
-        -- Wait until you stop moving and when you reach your destination, unmount
-
-        while IsMoving() == true or PathIsRunning == true or PathfindInProgress() == true do
+            --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
+            yield("/wait 1")
+            yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
             yield("/wait 2")
-        end
+            --If you are in the same zone, no need to teleport
 
-        if IsMoving() == false then
-            yield("/wait 2.001")
-            if GetCharacterCondition(4) == true then
-                yield("/vnavmesh stop")
-                yield("/gaction dismount")
-                PathStop()
-                yield("/vnavmesh stop")
-                yield("/wait 2.001")
-                yield("/gaction dismount")
+            if IsInZone(GetFlagZone()) == false then
+                yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+                yield("/wait 10.54")
             end
-        end
-
-        yield("/rotation manual")
-        yield("/bmrai on")
-        yield("/bmrai followtarget")
-        yield("/bmrai followoutofcombat")
-
-        while GetCharacterCondition(4) == false do
-            yield("/wait 2")
-        end
 
 
+            --Mount up if needed
+            if GetCharacterCondition(4) == false then
+                yield('/gaction "mount roulette"')
+                yield("/wait 3.54")
+            end
 
+            -- Now convert those simple map coordinates to RAW coordinates that vnav uses
+            rawX = GetFlagXCoord()
+            rawY = 1024
+            rawZ = GetFlagYCoord()
+            yield("/echo Position acquired " .. rawX .. ", " .. rawY .. ", " .. rawZ)
+            yield("/gaction jump")
+            yield("/wait 1")
 
-        ------------HOW CAN I GET KILL COUNTER TO WORK???-------------------------
-        --[[ local kills = 0
+            DiscoverNodeViaAction()
 
-        while kills < KillsNeeded do
-yield("/wait 1")
-            while GetCharacterCondition(26) == false do
-                yield("/target " .. mobName)
+            -- Wait until you stop moving and when you reach your destination, unmount
+
+            while IsMoving() == true or PathIsRunning == true or PathfindInProgress() == true do
                 yield("/wait 2")
             end
-            while GetCharacterCondition(26) == true and GetTargetName() == mobName do
-                yield("/wait .5")
-                if GetTargetHP() < 50 then
-                    kills = kills + 1
-                    if kills == 1 then
-                        yield("/echo Nice job! One down")
-                    end
 
-                    if kills == 2 then
-                        yield("/echo Nice job! Two down")
-                    end
-
-                    if kills == 3 then
-                        yield("/echo Nice job! Three down")
-                    end
-
-                    if kills == NumberNeeded then
-                        yield("/echo Nice job! On to the next one")
-                        yield("/rotation off")
-                        yield("/bmrai off")
-                    end
-                    yield("/wait 2")
+            if IsMoving() == false then
+                yield("/wait 2.001")
+                if GetCharacterCondition(4) == true then
+                    yield("/vnavmesh stop")
+                    yield("/gaction dismount")
+                    PathStop()
+                    yield("/vnavmesh stop")
+                    yield("/wait 2.001")
+                    yield("/gaction dismount")
                 end
             end
-            while GetCharacterCondition(26) == true and GetTargetName() ~= mobName do
+
+
+            yield("/rotation manual")
+            yield("/bmrai on")
+            yield("/bmrai followtarget on")
+            yield("/bmrai followoutofcombat on")
+            yield("/bmrai followcombat on")
+
+            while IncompleteTargets() == mobName do
+                while GetCharacterCondition(26) == false do
+                    yield("/target " .. mobName)
+                    yield("/wait 1")
+                    if HasTarget() == false then
+                        yield("/target " .. mobName)
+                        --TargetNearestObjectKind() <-- I've spent so long troubleshooting this function. I don't know how it works, but it could be helpful--can't get it to work though.
+                        yield("/wait 1")
+                    end
+                end
+                if GetCharacterCondition(26) == true then
+                    yield("/wait 1")
+                end
                 yield("/wait 1")
             end
-        end ]]
-        -------------------------------------------------------------------
+
+            yield("/echo Nice job! On to the next one")
+            yield("/rotation off")
+            yield("/bmrai off")
+        end
     end
 end
