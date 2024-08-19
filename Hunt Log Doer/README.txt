@@ -1,10 +1,10 @@
                                                                                                       Hunt Log Doer
 1. Make sure you have the right plugins.
-1. Chat Coordinates
-2. VNAVMESH
-3. Pandora
-4. RSR
-5. BMR
+					1. Chat Coordinates
+					2. VNAVMESH
+					3. Pandora
+					4. RSR
+					5. BMR
 
 2. Make sure to set up your paths. Use the Lua path setting in the SND help config. Seperatly there is a path that needs to be modified within the script itself for the monsters.json file.
 
