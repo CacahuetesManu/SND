@@ -11218,66 +11218,6 @@
                         ]
                     },
                     {
-                        "Name": "Maelstrom 02",
-                        "Monsters": [
-                            {
-                                "Id": 1354,
-                                "Name": "Heckler Imp",
-                                "Count": 5,
-                                "Icon": 63004,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Maelstrom 03",
-                        "Monsters": [
-                            {
-                                "Id": 1188,
-                                "Name": "Doctore",
-                                "Count": 3,
-                                "Icon": 63017,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Maelstrom 04",
-                        "Monsters": [
-                            {
-                                "Id": 1194,
-                                "Name": "Firemane",
-                                "Count": 1,
-                                "Icon": 63054,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "Name": "Maelstrom 05",
                         "Monsters": [
                             {
@@ -11444,66 +11384,6 @@
                                         "xCoord": 333.7028503418,
                                         "zCoord": 223.26969909668,
                                         "yCoord": 35.613327026367
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Maelstrom 13",
-                        "Monsters": [
-                            {
-                                "Id": 1574,
-                                "Name": "Temple Bat",
-                                "Count": 5,
-                                "Icon": 63020,
-                                "Locations": [
-                                    {
-                                        "Terri": 146,
-                                        "Map": 23,
-                                        "Zone": 163,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Maelstrom 14",
-                        "Monsters": [
-                            {
-                                "Id": 1580,
-                                "Name": "the condemned",
-                                "Count": 6,
-                                "Icon": 63084,
-                                "Locations": [
-                                    {
-                                        "Terri": 146,
-                                        "Map": 23,
-                                        "Zone": 163,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Maelstrom 15",
-                        "Monsters": [
-                            {
-                                "Id": 1567,
-                                "Name": "Teratotaur",
-                                "Count": 1,
-                                "Icon": 63109,
-                                "Locations": [
-                                    {
-                                        "Terri": 146,
-                                        "Map": 23,
-                                        "Zone": 163,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
                                     }
                                 ]
                             }
@@ -11785,46 +11665,6 @@
                                 ]
                             }
                         ]
-                    },
-                    {
-                        "Name": "Maelstrom 29",
-                        "Monsters": [
-                            {
-                                "Id": 35,
-                                "Name": "Tonberry",
-                                "Count": 5,
-                                "Icon": 63103,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Maelstrom 30",
-                        "Monsters": [
-                            {
-                                "Id": 1549,
-                                "Name": "Giant Bavarois",
-                                "Count": 1,
-                                "Icon": 63085,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
                     }
                 ]
             }
@@ -11848,66 +11688,6 @@
                                         "xCoord": -77.746406555176,
                                         "zCoord": 286.34729003906,
                                         "yCoord": -27.418830871582
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 02",
-                        "Monsters": [
-                            {
-                                "Id": 1354,
-                                "Name": "Heckler Imp",
-                                "Count": 5,
-                                "Icon": 63004,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 03",
-                        "Monsters": [
-                            {
-                                "Id": 1189,
-                                "Name": "Scythe Mantis",
-                                "Count": 5,
-                                "Icon": 63033,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 04",
-                        "Monsters": [
-                            {
-                                "Id": 1190,
-                                "Name": "Coliseum Python",
-                                "Count": 5,
-                                "Icon": 63041,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
                                     }
                                 ]
                             }
@@ -12101,46 +11881,6 @@
                                         "xCoord": 266.43844604492,
                                         "zCoord": -100.91185760498,
                                         "yCoord": 26.179088592529
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 14",
-                        "Monsters": [
-                            {
-                                "Id": 1575,
-                                "Name": "Temple Bee",
-                                "Count": 4,
-                                "Icon": 63048,
-                                "Locations": [
-                                    {
-                                        "Terri": 146,
-                                        "Map": 23,
-                                        "Zone": 163,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 15",
-                        "Monsters": [
-                            {
-                                "Id": 1569,
-                                "Name": "Temple Guardian",
-                                "Count": 1,
-                                "Icon": 63069,
-                                "Locations": [
-                                    {
-                                        "Terri": 146,
-                                        "Map": 23,
-                                        "Zone": 163,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
                                     }
                                 ]
                             }
@@ -12400,66 +12140,6 @@
                                 ]
                             }
                         ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 28",
-                        "Monsters": [
-                            {
-                                "Id": 35,
-                                "Name": "Tonberry",
-                                "Count": 7,
-                                "Icon": 63103,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 29",
-                        "Monsters": [
-                            {
-                                "Id": 1559,
-                                "Name": "Bronze Beetle",
-                                "Count": 6,
-                                "Icon": 63021,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Order of the Twin Adder 30",
-                        "Monsters": [
-                            {
-                                "Id": 1548,
-                                "Name": "Keeper Of Halidom",
-                                "Count": 1,
-                                "Icon": 63062,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
                     }
                 ]
             }
@@ -12483,66 +12163,6 @@
                                         "xCoord": -80.29598236084,
                                         "zCoord": 285.94311523438,
                                         "yCoord": -27.650894165039
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 02",
-                        "Monsters": [
-                            {
-                                "Id": 1188,
-                                "Name": "Doctore",
-                                "Count": 3,
-                                "Icon": 63017,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 03",
-                        "Monsters": [
-                            {
-                                "Id": 1194,
-                                "Name": "Firemane",
-                                "Count": 1,
-                                "Icon": 63054,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 04",
-                        "Monsters": [
-                            {
-                                "Id": 1196,
-                                "Name": "Thunderclap Guivre",
-                                "Count": 1,
-                                "Icon": 63053,
-                                "Locations": [
-                                    {
-                                        "Terri": 145,
-                                        "Map": 22,
-                                        "Zone": 162,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
                                     }
                                 ]
                             }
@@ -12736,66 +12356,6 @@
                                         "xCoord": 266.43844604492,
                                         "zCoord": -100.91185760498,
                                         "yCoord": 26.179088592529
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 14",
-                        "Monsters": [
-                            {
-                                "Id": 1592,
-                                "Name": "Sand Bat",
-                                "Count": 3,
-                                "Icon": 63020,
-                                "Locations": [
-                                    {
-                                        "Terri": 141,
-                                        "Map": 21,
-                                        "Zone": 170,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 15",
-                        "Monsters": [
-                            {
-                                "Id": 1594,
-                                "Name": "Sabotender Desertor",
-                                "Count": 2,
-                                "Icon": 63073,
-                                "Locations": [
-                                    {
-                                        "Terri": 141,
-                                        "Map": 21,
-                                        "Zone": 170,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 16",
-                        "Monsters": [
-                            {
-                                "Id": 1585,
-                                "Name": "Myrmidon Princess",
-                                "Count": 1,
-                                "Icon": 63076,
-                                "Locations": [
-                                    {
-                                        "Terri": 141,
-                                        "Map": 21,
-                                        "Zone": 170,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
                                     }
                                 ]
                             }
@@ -13030,66 +12590,6 @@
                                         "Zone": 0,
                                         "xCoord": 34.7,
                                         "yCoord": 20.8
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 28",
-                        "Monsters": [
-                            {
-                                "Id": 35,
-                                "Name": "Tonberry",
-                                "Count": 8,
-                                "Icon": 63103,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 29",
-                        "Monsters": [
-                            {
-                                "Id": 1557,
-                                "Name": "Corrupted Nymian",
-                                "Count": 3,
-                                "Icon": 63084,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "Name": "Immortal Flames 30",
-                        "Monsters": [
-                            {
-                                "Id": 1565,
-                                "Name": "Soldier Of Nym",
-                                "Count": 3,
-                                "Icon": 63029,
-                                "Locations": [
-                                    {
-                                        "Terri": 139,
-                                        "Map": 19,
-                                        "Zone": 159,
-                                        "xCoord": 0.0,
-                                        "yCoord": 0.0
                                     }
                                 ]
                             }
