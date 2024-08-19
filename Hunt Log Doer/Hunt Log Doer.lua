@@ -1,9 +1,9 @@
 --Choose either "class" to do your class log or "GC" to do your Grand Company Log
-route = "class"
+route = "GC"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 1
 -------------------REQUIRED FILES---------------------
----YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,PANDORA, VNAVMESH, RSR, and BMR. Pandora should be configured to teleport to flags sent to Echo channel. RSR should be set to attack all enemies when solo.
+---YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,Pandora, VNAVMESH, RSR, and BMR.
 
 --Load Required Files
 --JSON handler is from https://github.com/Egor-Skriptunoff/json4lua/blob/master/json.lua
@@ -16,7 +16,6 @@ open = io.open
 
 --CHANGE THIS PATH
 monsters = open(os.getenv("appdata").."\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
-
 local stringmonsters = monsters:read "*a"
 monsters:close()
 
@@ -290,8 +289,6 @@ end
 
 function loadupHuntlog()
     yield("/hlog")
-    route = "class"
-    GCID = 2
     ClassID = GetClassJobId()
     rank = RankToDo - 1
     yield("/wait 1")
@@ -319,7 +316,7 @@ function loadupHuntlog()
         yield("/pcall MonsterNote true 3 9 " .. GCID) -- this is not really needed, but it's to make sure it's always working
         yield("/wait 1")
     elseif route == "class" then
-        yield("/pcall MonsterNote true 0 " .. pcallClassID) -- this will swap to the GLA tab
+        yield("/pcall MonsterNote true 0 " .. pcallClassID) -- this will swap tabs
         yield("/wait 1")
     end
     yield("/pcall MonsterNote true 1 " .. rank) -- this will swap rank pages to page 2
@@ -373,7 +370,7 @@ for i = 1, #CurrentLog do
 
             yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
 
-            if IsInZone(tonumber(mobZone)) then
+         if IsInZone(tonumber(mobZone)) then
                 --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
                 if mobZ then
                     SetMapFlag(mobZone, mobX, mobY, mobZ)
@@ -403,16 +400,16 @@ for i = 1, #CurrentLog do
             end
 
             -- Now convert those simple map coordinates to RAW coordinates that vnav uses
-
-            if mobZ then
-                rawX = mobX
-                rawY = mobY
-                rawZ = mobZ
-            else
-                rawX = GetFlagXCoord()
-                rawY = 1024
-                rawZ = GetFlagYCoord()
-            end
+            
+if mobZ then
+rawX = mobX
+rawY = mobY
+rawZ = mobZ
+else
+rawX = GetFlagXCoord()
+            rawY = 1024
+            rawZ = GetFlagYCoord()
+end
             yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
             yield("/gaction jump")
             yield("/wait 1")
