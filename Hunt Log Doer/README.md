@@ -7,6 +7,8 @@
 					5. BMR
 
 2. Make sure to set up your paths. Use the Lua path setting in the SND help config.
+Like this:
+
 
 3. Change RSR to attack ALL enemies when solo, or previously engaged.
 
