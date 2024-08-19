@@ -15,7 +15,7 @@ require("Territories")
 open = io.open
 
 --CHANGE THIS PATH
-monsters = open(os.getenv("appdata").."\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+monsters = open(os.getenv("appdata") .. "\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 local stringmonsters = monsters:read "*a"
 monsters:close()
 
@@ -89,6 +89,7 @@ function CheckNavmeshReady()
 end
 
 function MountFly()
+    if HasFlightUnlocked(GetZoneID()) then
     while not GetCharacterCondition(4) do
         yield('/gaction "Mount Roulette"')
         repeat
@@ -101,6 +102,7 @@ function MountFly()
             yield("/wait " .. interval_rate)
         until GetCharacterCondition(77) and not GetCharacterCondition(48)
     end
+end
 end
 
 function StopMoveFly()
@@ -184,6 +186,7 @@ end
 
 function DiscoverNodeViaAction()
     if IsInZone(GetFlagZone()) == true then
+
         MountFly()
         local rng_offset = 0
         ::APPROXPATH_START::
@@ -327,17 +330,27 @@ end
 
 --Wrapper handling to show incomplete targets
 function IncompleteTargets(route)
+if GetNodeText("MonsterNote", 2, 18, 4) == "Heckler Imp" then
+    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bee" then
+    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
+elseif GetNodeText("MonsterNote", 2, 18, 4) == "Doctore" then
+    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+elseif GetNodeText("MonsterNote", 2, 18, 4) == "Sand Bat" then
+    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bat" then
+    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+else
     if IsNodeVisible("MonsterNote", 1, 46, 5, 2) == false then
         NextIncompleteTarget = GetNodeText("MonsterNote", 2, 18, 4)
-        --yield("/echo ".. GetNodeText("MonsterNote", 2, 18, 4))
+        
     elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == false then
         NextIncompleteTarget = GetNodeText("MonsterNote", 2, 19, 4)
-        --yield("/echo ".. GetNodeText("MonsterNote", 2, 19, 4))
+        
     elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == true then
         NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
-        --yield("/echo ".. GetNodeText("MonsterNote", 2, 20, 4))
     end
-
+end
 
     yield("/wait 1")
     return NextIncompleteTarget
@@ -360,7 +373,6 @@ for i = 1, #CurrentLog do
     for j = 1, #CurrentLog[i].Monsters do
         mobName = CurrentLog[i].Monsters[j].Name
         if IncompleteTargets() == mobName then
-            --yield("/echo " .. NextIncompleteTarget)
             KillsNeeded = CurrentLog[i].Monsters[j].Count
             mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
             mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
@@ -370,7 +382,7 @@ for i = 1, #CurrentLog do
 
             yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
 
-         if IsInZone(tonumber(mobZone)) then
+            if IsInZone(tonumber(mobZone)) then
                 --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
                 if mobZ then
                     SetMapFlag(mobZone, mobX, mobY, mobZ)
@@ -392,27 +404,29 @@ for i = 1, #CurrentLog do
                 end
             end
 
-if HasFlightUnlocked(GetZoneID()) then
-            --Mount up if needed
-            if GetCharacterCondition(4) == false then
-                yield('/gaction "mount roulette"')
-                yield("/wait 3.54")
+            if HasFlightUnlocked(GetZoneID()) then
+                --Mount up if needed
+                if GetCharacterCondition(4) == false then
+                    yield('/gaction "mount roulette"')
+                    yield("/wait 3.54")
+                end
             end
-end
 
             -- Now convert those simple map coordinates to RAW coordinates that vnav uses
-            
-if mobZ then
-rawX = mobX
-rawY = mobY
-rawZ = mobZ
-else
-rawX = GetFlagXCoord()
-            rawY = 1024
-            rawZ = GetFlagYCoord()
-end
+
+            if mobZ then
+                rawX = mobX
+                rawY = mobY
+                rawZ = mobZ
+            else
+                rawX = GetFlagXCoord()
+                rawY = 1024
+                rawZ = GetFlagYCoord()
+            end
             yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
+            if HasFlightUnlocked(GetZoneID()) then
             yield("/gaction jump")
+            end
             yield("/wait 1")
 
             DiscoverNodeViaAction()
@@ -442,7 +456,15 @@ end
             yield("/bmrai followoutofcombat on")
             yield("/bmrai followcombat on")
 
+
+            if IsNodeVisible("MonsterNote", 1) == false then
+                loadupHuntlog()
+            end
+            
             while IncompleteTargets() == mobName do
+                if IsNodeVisible("MonsterNote", 1) == false then
+                    loadupHuntlog()
+                end
                 while GetCharacterCondition(26) == false do
                     yield("/target " .. mobName)
                     yield("/wait 1")
