@@ -3,7 +3,7 @@ route = "class"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 1
 -------------------REQUIRED FILES---------------------
----YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,VNAVMESH, RSR, and BMR.
+---YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,PANDORA, VNAVMESH, RSR, and BMR. Pandora should be configured to teleport to flags sent to Echo channel. RSR should be set to attack all enemies when solo.
 
 --Load Required Files
 --JSON handler is from https://github.com/Egor-Skriptunoff/json4lua/blob/master/json.lua
@@ -16,7 +16,7 @@ open = io.open
 
 --CHANGE THIS PATH
 monsters = open(
-    "C:\\Users\\%YOUR PATH USERNAME%\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
+    "C:\\Users\\manue\\AppData\\Roaming\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 
 local stringmonsters = monsters:read "*a"
 monsters:close()
@@ -85,7 +85,7 @@ end
 function CheckNavmeshReady()
     was_ready = NavIsReady()
     while not NavIsReady() do
-        Id_Print("Building navmesh, currently at " .. Truncate1Dp(NavBuildProgress() * 100) .. "%")
+        yield("/echo Building navmesh, currently at " .. Truncate1Dp(NavBuildProgress() * 100) .. "%")
         yield("/wait " .. (interval_rate * 10))
     end
 end
@@ -195,7 +195,7 @@ function DiscoverNodeViaAction()
         while not x or not y or not z do
             local target_point = {
                 x = rawX + math.random(0, rng_offset),
-                y = 1024,
+                y = rawY,
                 z = rawZ + math.random(0, rng_offset),
             }
             x = QueryMeshPointOnFloorX(target_point.x, target_point.y, target_point.z, false, i)
@@ -349,7 +349,7 @@ end
 
 -----------------------------------START OF CODE-------------------------------------------------------
 
--- leave your hlog open or else script wont work.
+yield("Doing the hunt log! Looking for next available mob.")
 
 -- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
 ClassorGCID()
@@ -369,19 +369,31 @@ for i = 1, #CurrentLog do
             mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
             mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
             mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
+            mobZ = CurrentLog[i].Monsters[j].Locations[1].zCoord
             ZoneName = Territories[tostring(mobZone)]
 
             yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
 
-            --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
-            yield("/wait 1")
-            yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
-            yield("/wait 2")
-            --If you are in the same zone, no need to teleport
-
-            if IsInZone(GetFlagZone()) == false then
-                yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
-                yield("/wait 10.54")
+            if IsInZone(tonumber(mobZone)) then
+                --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
+                if mobZ then
+                    SetMapFlag(mobZone, mobX, mobY, mobZ)
+                    yield("/echo Using better coordinates.")
+                else
+                    yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+                    yield("/wait 1")
+                end
+                --If you are in the same zone, no need to teleport
+            else
+                if mobZ then
+                    SetMapFlag(mobZone, mobX, mobY, mobZ)
+                    yield("/wait 1")
+                    yield("/echo Using better coordinates. Pandora, take us to <flag>")
+                    yield("/wait 10.54")
+                else
+                    yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+                    yield("/wait 10.54")
+                end
             end
 
 
@@ -392,10 +404,17 @@ for i = 1, #CurrentLog do
             end
 
             -- Now convert those simple map coordinates to RAW coordinates that vnav uses
-            rawX = GetFlagXCoord()
-            rawY = 1024
-            rawZ = GetFlagYCoord()
-            yield("/echo Position acquired " .. rawX .. ", " .. rawY .. ", " .. rawZ)
+
+            if mobZ then
+                rawX = mobX
+                rawY = mobY
+                rawZ = mobZ
+            else
+                rawX = GetFlagXCoord()
+                rawY = 1024
+                rawZ = GetFlagYCoord()
+            end
+            yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
             yield("/gaction jump")
             yield("/wait 1")
 
@@ -436,7 +455,7 @@ for i = 1, #CurrentLog do
                         yield("/wait 1")
                     end
                 end
-                if GetCharacterCondition(26) == true then
+                while GetCharacterCondition(26) == true do
                     yield("/wait 1")
                 end
                 yield("/wait 1")
