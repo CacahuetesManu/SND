@@ -206,8 +206,8 @@ function DiscoverNodeViaAction()
         repeat
             yield("/wait " .. interval_rate)
             if os.clock() - timeout_start > timeout_threshold then
-                Print("Failed to navigate to approximate flag position.")
-                Print("Trying another place near it...")
+                yield("/echo Failed to navigate to approximate flag position.")
+                yield("/echo Trying another place near it...")
                 rng_offset = rng_offset + 1
                 goto APPROXPATH_START
             end
@@ -392,12 +392,13 @@ for i = 1, #CurrentLog do
                 end
             end
 
-
+if HasFlightUnlocked(GetZoneID()) then
             --Mount up if needed
             if GetCharacterCondition(4) == false then
                 yield('/gaction "mount roulette"')
                 yield("/wait 3.54")
             end
+end
 
             -- Now convert those simple map coordinates to RAW coordinates that vnav uses
             
