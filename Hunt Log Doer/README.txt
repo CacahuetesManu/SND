@@ -17,4 +17,7 @@ route = "class"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 1
 
-4. If you are interested in improving the coordinates, reach out to me! I can show you how to help. 
+
+5. If you are having issues tracking the kills, try to manually change your hunt log in the game to "Show Incomplete"
+
+6. If you are interested in improving the coordinates, reach out to me! I can show you how to help. 
