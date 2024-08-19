@@ -6,7 +6,7 @@
 					4. RSR
 					5. BMR
 
-2. Make sure to set up your paths. Use the Lua path setting in the SND help config. Seperatly there is a path that needs to be modified within the script itself for the monsters.json file.
+2. Make sure to set up your paths. Use the Lua path setting in the SND help config.
 
 3. Change RSR to attack ALL enemies when solo, or previously engaged.
 
