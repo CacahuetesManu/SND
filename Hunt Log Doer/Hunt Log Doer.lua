@@ -291,7 +291,6 @@ function ClassorGCID()
 end
 
 function loadupHuntlog()
-    yield("/hlog")
     ClassID = GetClassJobId()
     rank = RankToDo - 1
     yield("/wait 1")
@@ -316,16 +315,15 @@ function loadupHuntlog()
     end
 
     if route == "GC" then
-        yield("/pcall MonsterNote true 3 9 " .. GCID) -- this is not really needed, but it's to make sure it's always working
+        yield("/callback MonsterNote true 3 9 " .. GCID) -- this is not really needed, but it's to make sure it's always working
         yield("/wait 1")
     elseif route == "class" then
-        yield("/pcall MonsterNote true 0 " .. pcallClassID) -- this will swap tabs
+        yield("/callback MonsterNote true 0 " .. pcallClassID) -- this will swap tabs
         yield("/wait 1")
     end
-    yield("/pcall MonsterNote true 1 " .. rank) -- this will swap rank pages to page 2
+    yield("/callback MonsterNote true 1 " .. rank) -- this will swap rank pages
     yield("/wait 1")
-    yield("/pcall MonsterNote true 2  2")       -- this will change it to show incomplete
-    yield("/wait 1")
+    yield("/callback MonsterNote false 2 2")       -- this will change it to show incomplete
 end
 
 --Wrapper handling to show incomplete targets
@@ -368,8 +366,9 @@ json.traverse(stringmonsters, my_callback)
 
 for i = 1, #CurrentLog do
     if IsNodeVisible("MonsterNote", 1) == false then
-        loadupHuntlog()
+        yield("/hlog")
     end
+loadupHuntlog()
     for j = 1, #CurrentLog[i].Monsters do
         mobName = CurrentLog[i].Monsters[j].Name
         if IncompleteTargets() == mobName then
@@ -458,13 +457,16 @@ for i = 1, #CurrentLog do
 
 
             if IsNodeVisible("MonsterNote", 1) == false then
-                loadupHuntlog()
+                yield("/hlog")
             end
-            
+            loadupHuntlog()
+
             while IncompleteTargets() == mobName do
+
                 if IsNodeVisible("MonsterNote", 1) == false then
-                    loadupHuntlog()
+yield("/hlog")
                 end
+loadupHuntlog()
                 while GetCharacterCondition(26) == false do
                     yield("/target " .. mobName)
                     yield("/wait 1")
