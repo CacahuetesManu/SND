@@ -19,7 +19,7 @@ Like this:
 5. Change RSR to attack ALL enemies when solo, or previously engaged.
 
 6. Modify the variables in the script to match what you want.
-   
+   ```
 	--Choose either "class" to do your class log or "GC" to do your Grand Company Log
 
    	route = "class"
@@ -27,6 +27,7 @@ Like this:
 	--Choose what rank to start 1,2, 3, 4 or 5
 	
  	RankToDo = 1
+   ```
 
 5. If you are having issues tracking the kills, try to manually change your hunt log in the game to "Show Incomplete"
 
