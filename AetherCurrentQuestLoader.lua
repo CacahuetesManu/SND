@@ -104,7 +104,7 @@ end
 
 yield("/tp Idyllshire")
 yield("wait 10")
-yield("/li Epilogue Gate")
+yield("/li Prologue Gate")
 yield("/qst next 1966") --Saro Roggo's Common Life
 yield("/qst start")
 
@@ -112,6 +112,9 @@ while IsQuestComplete(1966) == false do
     yield("/wait 1")
 end
 
+yield("/tp Idyllshire")
+yield("wait 10")
+yield("/li  Epilogue Gate")
 yield("/qst next 1936") --Louder than Words
 yield("/qst start")
 
