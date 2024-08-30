@@ -1,5 +1,5 @@
 --Choose either "class" to do your class log or "GC" to do your Grand Company Log
-route = "GC"
+route = "class"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 1
 -------------------REQUIRED FILES---------------------
@@ -90,19 +90,21 @@ end
 
 function MountFly()
     if HasFlightUnlocked(GetZoneID()) then
-    while not GetCharacterCondition(4) do
-        yield('/gaction "Mount Roulette"')
-        repeat
-            yield("/wait " .. interval_rate)
-        until not IsPlayerCasting() and not GetCharacterCondition(57)
+        while not GetCharacterCondition(4) do
+            yield('/gaction "Mount Roulette"')
+            repeat
+                yield("/wait " .. interval_rate)
+            until not IsPlayerCasting() and not GetCharacterCondition(57)
+        end
+        if not GetCharacterCondition(81) and GetCharacterCondition(4) and not GetCharacterCondition(77) and
+           not (IsInZone(146) or IsInZone(180)) then -- vnavmesh has problems flying around Outer La Noscea, Southern Thanalan, and Central Coerthas Highlands
+            repeat
+                yield("/echo Jumping to mount")
+                yield('/gaction "Jump"')
+                yield("/wait " .. interval_rate)
+            until GetCharacterCondition(77) and not GetCharacterCondition(48)
+        end
     end
-    if not GetCharacterCondition(81) and GetCharacterCondition(4) and not GetCharacterCondition(77) then
-        repeat
-            yield('/gaction "Jump"')
-            yield("/wait " .. interval_rate)
-        until GetCharacterCondition(77) and not GetCharacterCondition(48)
-    end
-end
 end
 
 function StopMoveFly()
@@ -294,23 +296,23 @@ function loadupHuntlog()
     ClassID = GetClassJobId()
     rank = RankToDo - 1
     yield("/wait 1")
-    if ClassID == 1 then
+    if ClassID == 1 or ClassID == 19 then
         pcallClassID = 0 -- Gladiator
-    elseif ClassID == 2 then
+    elseif ClassID == 2 or ClassID == 20 then
         pcallClassID = 1 -- Pugilist
-    elseif ClassID == 3 then
+    elseif ClassID == 3 or ClassID == 21 then
         pcallClassID = 2 -- Marauder
-    elseif ClassID == 4 then
+    elseif ClassID == 4 or ClassID == 22 then
         pcallClassID = 3 -- Lancer
-    elseif ClassID == 5 then
+    elseif ClassID == 5 or ClassID == 23 then
         pcallClassID = 4 -- Archer
-    elseif ClassID == 6 then
+    elseif ClassID == 6 or ClassID == 24 then
         pcallClassID = 6 --Conjurer
-    elseif ClassID == 7 then
+    elseif ClassID == 7 or ClassID == 25 then
         pcallClassID = 7 -- Thaumaturge
-    elseif ClassID == 26 then
+    elseif ClassID == 26 or ClassID == 27 or ClassID == 28 then
         pcallClassID = 8 -- Arcanist
-    elseif ClassID == 29 then
+    elseif ClassID == 29 or ClassID == 30 then
         pcallClassID = 5 -- Rogue
     end
 
@@ -328,27 +330,27 @@ end
 
 --Wrapper handling to show incomplete targets
 function IncompleteTargets(route)
-if GetNodeText("MonsterNote", 2, 18, 4) == "Heckler Imp" then
-    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
-elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bee" then
-    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
-elseif GetNodeText("MonsterNote", 2, 18, 4) == "Doctore" then
-    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
-elseif GetNodeText("MonsterNote", 2, 18, 4) == "Sand Bat" then
-    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
-elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bat" then
-    NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
-else
-    if IsNodeVisible("MonsterNote", 1, 46, 5, 2) == false then
-        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 18, 4)
-        
-    elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == false then
-        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 19, 4)
-        
-    elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == true then
+    if GetNodeText("MonsterNote", 2, 18, 4) == "Heckler Imp" then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+    elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bee" then
         NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
+    elseif GetNodeText("MonsterNote", 2, 18, 4) == "Doctore" then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+    elseif GetNodeText("MonsterNote", 2, 18, 4) == "Sand Bat" then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+    elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bat" then
+        NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
+    else
+        if IsNodeVisible("MonsterNote", 1, 46, 5, 2) == false then
+            NextIncompleteTarget = GetNodeText("MonsterNote", 2, 18, 4)
+            
+        elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == false then
+            NextIncompleteTarget = GetNodeText("MonsterNote", 2, 19, 4)
+            
+        elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == true then
+            NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
+        end
     end
-end
 
     yield("/wait 1")
     return NextIncompleteTarget
@@ -356,135 +358,157 @@ end
 
 -----------------------------------START OF CODE-------------------------------------------------------
 
-yield("Doing the hunt log! Looking for next available mob.")
+while RankToDo < 6 do
+    yield("Doing the hunt log! Looking for next available mob.")
 
--- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
-ClassorGCID()
-json.traverse(stringmonsters, my_callback)
+    -- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
+    ClassorGCID()
+    json.traverse(stringmonsters, my_callback)
 
--- Now we loop through the table and extract each mob, territory, location and kills needed in order to execute our hunt log doer
+    -- Now we loop through the table and extract each mob, territory, location and kills needed in order to execute our hunt log doer
 
-for i = 1, #CurrentLog do
-    if IsNodeVisible("MonsterNote", 1) == false then
-        yield("/hlog")
-    end
-loadupHuntlog()
-    for j = 1, #CurrentLog[i].Monsters do
-        mobName = CurrentLog[i].Monsters[j].Name
-        if IncompleteTargets() == mobName then
-            KillsNeeded = CurrentLog[i].Monsters[j].Count
-            mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
-            mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
-            mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
-            mobZ = CurrentLog[i].Monsters[j].Locations[1].zCoord
-            ZoneName = Territories[tostring(mobZone)]
+    for i = 1, #CurrentLog do
+        if IsNodeVisible("MonsterNote", 1) == false then
+            yield("/hlog")
+        end
+        loadupHuntlog()
+        for j = 1, #CurrentLog[i].Monsters do
+            mobName = CurrentLog[i].Monsters[j].Name
+            if IncompleteTargets() == mobName then
+                KillsNeeded = CurrentLog[i].Monsters[j].Count
+                mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
+                mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
+                mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
+                mobZ = CurrentLog[i].Monsters[j].Locations[1].zCoord
+                ZoneName = Territories[tostring(mobZone)]
 
-            yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
+                yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
 
-            if IsInZone(tonumber(mobZone)) then
-                --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
-                if mobZ then
-                    SetMapFlag(mobZone, mobX, mobY, mobZ)
-                    yield("/echo Using better coordinates.")
+                if IsInZone(tonumber(mobZone)) then
+                    --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
+                    if mobZ then
+                        SetMapFlag(mobZone, mobX, mobY, mobZ)
+                        yield("/echo Using better coordinates.")
+                    else
+                        yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+                        yield("/wait 1")
+                    end
+                    --If you are in the same zone, no need to teleport
                 else
-                    yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
-                    yield("/wait 1")
+                    if mobZ then
+                        SetMapFlag(mobZone, mobX, mobY, mobZ)
+                        yield("/wait 1")
+                        yield("/echo Using better coordinates. Pandora, take us to <flag>")
+                        yield("/wait 10.54")
+                    else
+                        while not IsInZone(tonumber(mobZone)) do -- addresses getting attacked during tp
+                            yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+                            yield("/wait 10.54")
+                            while GetCharacterCondition(26) do
+                                yield("/battletarget")
+                                yield("/wait 1")
+                                PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(),  GetTargetRawZPos())
+                                yield("/wait 1")
+                            end
+                        end
+                    end
                 end
-                --If you are in the same zone, no need to teleport
-            else
+
+                if HasFlightUnlocked(GetZoneID()) then
+                    --Mount up if needed
+                    if GetCharacterCondition(4) == false then
+                        yield('/gaction "mount roulette"')
+                        yield("/wait 3.54")
+                    end
+                end
+
+                -- Now convert those simple map coordinates to RAW coordinates that vnav uses
+
                 if mobZ then
-                    SetMapFlag(mobZone, mobX, mobY, mobZ)
-                    yield("/wait 1")
-                    yield("/echo Using better coordinates. Pandora, take us to <flag>")
-                    yield("/wait 10.54")
+                    rawX = mobX
+                    rawY = mobY
+                    rawZ = mobZ
                 else
-                    yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
-                    yield("/wait 10.54")
+                    rawX = GetFlagXCoord()
+                    rawY = 1024
+                    rawZ = GetFlagYCoord()
                 end
-            end
-
-            if HasFlightUnlocked(GetZoneID()) then
-                --Mount up if needed
-                if GetCharacterCondition(4) == false then
-                    yield('/gaction "mount roulette"')
-                    yield("/wait 3.54")
+                yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
+                if HasFlightUnlocked(GetZoneID()) and not (IsInZone(146) or IsInZone(180)) then -- vnavmesh has problems in Outer La Noscea and Southern Thanalan
+                    yield("/gaction jump")
                 end
-            end
+                yield("/wait 1")
 
-            -- Now convert those simple map coordinates to RAW coordinates that vnav uses
+                DiscoverNodeViaAction()
 
-            if mobZ then
-                rawX = mobX
-                rawY = mobY
-                rawZ = mobZ
-            else
-                rawX = GetFlagXCoord()
-                rawY = 1024
-                rawZ = GetFlagYCoord()
-            end
-            yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
-            if HasFlightUnlocked(GetZoneID()) then
-            yield("/gaction jump")
-            end
-            yield("/wait 1")
+                -- Wait until you stop moving and when you reach your destination, unmount
 
-            DiscoverNodeViaAction()
+                while IsMoving() == true or PathIsRunning() == true or PathfindInProgress() == true do
+                    yield("/echo Moving to next area...")
+                    yield("/wait 2")
+                end
 
-            -- Wait until you stop moving and when you reach your destination, unmount
-
-            while IsMoving() == true or PathIsRunning == true or PathfindInProgress() == true do
-                yield("/wait 2")
-            end
-
-            if IsMoving() == false then
-                yield("/wait 2.001")
-                if GetCharacterCondition(4) == true then
-                    yield("/vnavmesh stop")
-                    yield("/gaction dismount")
-                    PathStop()
-                    yield("/vnavmesh stop")
+                if IsMoving() == false then
                     yield("/wait 2.001")
-                    yield("/gaction dismount")
+                    if GetCharacterCondition(4) == true then
+                        yield("/vnavmesh stop")
+                        yield("/gaction dismount")
+                        PathStop()
+                        yield("/vnavmesh stop")
+                        yield("/wait 2.001")
+                        yield("/gaction dismount")
+                    end
                 end
-            end
 
 
-            yield("/rotation manual")
-            yield("/bmrai on")
-            yield("/bmrai followtarget on")
-            yield("/bmrai followoutofcombat on")
-            yield("/bmrai followcombat on")
+                yield("/rotation manual")
+                yield("/bmrai on")
+                yield("/bmrai followtarget on")
+                yield("/bmrai followoutofcombat on")
+                yield("/bmrai followcombat on")
 
-
-            if IsNodeVisible("MonsterNote", 1) == false then
-                yield("/hlog")
-            end
-            loadupHuntlog()
-
-            while IncompleteTargets() == mobName do
 
                 if IsNodeVisible("MonsterNote", 1) == false then
-yield("/hlog")
+                    yield("/hlog")
                 end
-loadupHuntlog()
-                while GetCharacterCondition(26) == false do
-                    yield("/target " .. mobName)
-                    yield("/wait 1")
-                    if HasTarget() == false then
+                loadupHuntlog()
+
+                while IncompleteTargets() == mobName do
+                    yield("/echo Killing "..mobName.."s in progress...")
+                    if IsNodeVisible("MonsterNote", 1) == false then
+                        yield("/hlog")
+                    end
+                    loadupHuntlog()
+                    if GetCharacterCondition(26) == false then
                         yield("/target " .. mobName)
-                        --TargetNearestObjectKind() <-- I've spent so long troubleshooting this function. I don't know how it works, but it could be helpful--can't get it to work though.
+                        yield("/wait 1")
+                        if HasTarget() then
+                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                            yield("/wait 1")
+                        end
+                    end
+                    while PathIsRunning() or PathfindInProgress() do
+                        yield("/echo Found "..mobName.." moving closer.")
+                        yield("/wait 1")
+                    end
+                    while GetCharacterCondition(26) == true do
+                        yield("/echo In combat against "..GetTargetName())
+                        if HasTarget() == false then
+                            yield("/battletarget") -- if other mobs are attacking you
+                            yield("/wait 1")
+                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(),  GetTargetRawZPos())
+                            yield("/wait 1")
+                        end
                         yield("/wait 1")
                     end
                 end
-                while GetCharacterCondition(26) == true do
-                    yield("/wait 1")
-                end
-                yield("/wait 1")
-            end
 
-            yield("/echo Nice job! On to the next one")
-            yield("/rotation off")
-            yield("/bmrai off")
+                yield("/echo Nice job! On to the next one")
+                yield("/rotation off")
+                yield("/bmrai off")
+            end
         end
     end
+    yield("/echo Finished hunt log for Rank "..RankToDo.."! Checking hunt log page.")
+    RankToDo = RankToDo + 1
 end
