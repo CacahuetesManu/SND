@@ -286,6 +286,9 @@ function unstuckflag()
             if WithinThreeUnits(x1, y1, z1, x2, y2, z2) and PathIsRunning() then
                 yield("/vnav stop")
                 retry_timer = retry_timer + 1
+                yield("/hold W <wait.2.0>")
+                yield("/gaction jump")
+                yield("/release W")
                 yield("/vnav reload")
                 NodeMoveFly()
                 yield("/wait 1.0034")
