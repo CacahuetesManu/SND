@@ -26,7 +26,7 @@
     -> RSR:
     -> vbm : https://puni.sh/api/repository/veyn
     -> SomethingNeedDoing (Expanded Edition) [Make sure to press the lua button when you import this] -> https://puni.sh/api/repository/croizat
-    -> Teleporter: 
+    -> Teleporter:
 
     *****************************
     *  Required Plugin Settings *
@@ -330,8 +330,10 @@ function unstucktarget()
                 goto continue
             end
             if WithinThreeUnits(x1, y1, z1, x2, y2, z2) and PathIsRunning() then
-                yield("/vnav stop")
                 retry_timer = retry_timer + 1
+                yield("/hold W <wait.2.0>")
+                yield("/gaction jump")
+                yield("/release W")
                 yield("/vnav reload")
                 yield("/wait 1.0034")
             elseif retry_time == 4 then
@@ -509,7 +511,7 @@ while rankToDo < 6 do
                         SetMapFlag(mobZone, mobX, mobY, mobZ)
                         yield("/wait 1")
                         yield("/echo Using better coordinates.")
-                        yield("/tpm "..ZoneName)
+                        yield("/tpm " .. ZoneName)
                         yield("/wait 10.54")
                     else
                         while not IsInZone(tonumber(mobZone)) do -- addresses getting attacked during tp
