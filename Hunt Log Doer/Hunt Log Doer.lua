@@ -3,7 +3,7 @@ route = "class"
 --Choose what rank to start 1,2, 3, 4 or 5
 RankToDo = 1
 -------------------REQUIRED FILES---------------------
----YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,Pandora, VNAVMESH, RSR, and BMR.
+---YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,Pandora, VNAVMESH, RSR, and vbm. Also make sure to enable Auto teleport to map coords with pandora (white list the echo channel).
 
 --Load Required Files
 --JSON handler is from https://github.com/Egor-Skriptunoff/json4lua/blob/master/json.lua
@@ -52,7 +52,7 @@ local function my_callback(path, json_type, value)
     end
 end
 
--- The following Functions I got from : credit: LeafFriend, plottingCreeper and Mootykins. I adapted to meet the needs of this script
+-- The following Functions I got from : credit: LeafFriend, plottingCreeper and Mootykins. I adapted to meet the needs of this script. I also got functions from Umbra, they help with unstucking!
 
 interval_rate = 0.5
 timeout_threshold = 3
@@ -80,6 +80,30 @@ function Split(inputstr, sep)
     return t
 end
 
+function SquaredDistance(x1, y1, z1, x2, y2, z2)
+    local success, result = pcall(function()
+        local dx = x2 - x1
+        local dy = y2 - y1
+        local dz = z2 - z1
+        local dist = math.sqrt(dx * dx + dy * dy + dz * dz)
+        return math.floor(dist + 0.5)
+    end)
+    if success then
+        return result
+    else
+        return nil
+    end
+end
+
+function WithinThreeUnits(x1, y1, z1, x2, y2, z2)
+    local dist = SquaredDistance(x1, y1, z1, x2, y2, z2)
+    if dist then
+        return dist <= 3
+    else
+        return false
+    end
+end
+
 function CheckNavmeshReady()
     was_ready = NavIsReady()
     while not NavIsReady() do
@@ -97,7 +121,7 @@ function MountFly()
             until not IsPlayerCasting() and not GetCharacterCondition(57)
         end
         if not GetCharacterCondition(81) and GetCharacterCondition(4) and not GetCharacterCondition(77) and
-           not (IsInZone(146) or IsInZone(180)) then -- vnavmesh has problems flying around Outer La Noscea, Southern Thanalan, and Central Coerthas Highlands
+            not (IsInZone(146) or IsInZone(180)) then -- vnavmesh has problems flying around Outer La Noscea, Southern Thanalan, and Central Coerthas Highlands
             repeat
                 yield("/echo Jumping to mount")
                 yield('/gaction "Jump"')
@@ -188,7 +212,6 @@ end
 
 function DiscoverNodeViaAction()
     if IsInZone(GetFlagZone()) == true then
-
         MountFly()
         local rng_offset = 0
         ::APPROXPATH_START::
@@ -224,6 +247,38 @@ function DiscoverNodeViaAction()
 
         repeat
             yield("/wait " .. interval_rate)
+
+            if PathIsRunning() then
+                local retry_timer = 0
+                while PathIsRunning() do
+                    local success1, x1 = pcall(GetPlayerRawXPos)
+                    local success2, y1 = pcall(GetPlayerRawYPos)
+                    local success3, z1 = pcall(GetPlayerRawZPos)
+                    if not (success1 and success2 and success3) then
+                        goto continue
+                    end
+                    yield("/wait 2.0034")
+                    local success4, x2 = pcall(GetPlayerRawXPos)
+                    local success5, y2 = pcall(GetPlayerRawYPos)
+                    local success6, z2 = pcall(GetPlayerRawZPos)
+                    if not (success4 and success5 and success6) then
+                        goto continue
+                    end
+                    if WithinThreeUnits(x1, y1, z1, x2, y2, z2) and PathIsRunning() then
+                        yield("/vnav stop")
+                        retry_timer = retry_timer + 1
+                        if retry_timer > 4 then -- 4 would be about 8 seconds, with some extra time since it waits a second after reloading
+                            yield("/vnav rebuild")
+                        else
+                            yield("/vnav reload")
+                        end
+                        yield("/wait 1.0034")
+                    else
+                        retry_timer = 0
+                    end
+                    ::continue::
+                end
+            end
         until GetDistanceToNode(node) < ping_radius
         StopMoveFly()
         Dismount()
@@ -343,10 +398,8 @@ function IncompleteTargets(route)
     else
         if IsNodeVisible("MonsterNote", 1, 46, 5, 2) == false then
             NextIncompleteTarget = GetNodeText("MonsterNote", 2, 18, 4)
-            
         elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == false then
             NextIncompleteTarget = GetNodeText("MonsterNote", 2, 19, 4)
-            
         elseif IsNodeVisible("MonsterNote", 1, 46, 5, 2) == true and IsNodeVisible("MonsterNote", 1, 46, 51001, 2) == true then
             NextIncompleteTarget = GetNodeText("MonsterNote", 2, 20, 4)
         end
@@ -407,7 +460,7 @@ while RankToDo < 6 do
                             while GetCharacterCondition(26) do
                                 yield("/battletarget")
                                 yield("/wait 1")
-                                PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(),  GetTargetRawZPos())
+                                PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
                                 yield("/wait 1")
                             end
                         end
@@ -462,10 +515,10 @@ while RankToDo < 6 do
 
 
                 yield("/rotation manual")
-                yield("/bmrai on")
-                yield("/bmrai followtarget on")
-                yield("/bmrai followoutofcombat on")
-                yield("/bmrai followcombat on")
+                yield("/vbmai on")
+                yield("/vbmai followtarget on")
+                yield("/vbmai followoutofcombat on")
+                yield("/vbmai followcombat on")
 
 
                 if IsNodeVisible("MonsterNote", 1) == false then
@@ -474,7 +527,7 @@ while RankToDo < 6 do
                 loadupHuntlog()
 
                 while IncompleteTargets() == mobName do
-                    yield("/echo Killing "..mobName.."s in progress...")
+                    yield("/echo Killing " .. mobName .. "s in progress...")
                     if IsNodeVisible("MonsterNote", 1) == false then
                         yield("/hlog")
                     end
@@ -488,15 +541,15 @@ while RankToDo < 6 do
                         end
                     end
                     while PathIsRunning() or PathfindInProgress() do
-                        yield("/echo Found "..mobName.." moving closer.")
+                        yield("/echo Found " .. mobName .. " moving closer.")
                         yield("/wait 1")
                     end
                     while GetCharacterCondition(26) == true do
-                        yield("/echo In combat against "..GetTargetName())
+                        yield("/echo In combat against " .. GetTargetName())
                         if HasTarget() == false then
                             yield("/battletarget") -- if other mobs are attacking you
                             yield("/wait 1")
-                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(),  GetTargetRawZPos())
+                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
                             yield("/wait 1")
                         end
                         yield("/wait 1")
@@ -505,10 +558,10 @@ while RankToDo < 6 do
 
                 yield("/echo Nice job! On to the next one")
                 yield("/rotation off")
-                yield("/bmrai off")
+                yield("/vbmai off")
             end
         end
     end
-    yield("/echo Finished hunt log for Rank "..RankToDo.."! Checking hunt log page.")
+    yield("/echo Finished hunt log for Rank " .. RankToDo .. "! Checking hunt log page.")
     RankToDo = RankToDo + 1
 end
