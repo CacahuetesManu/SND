@@ -517,7 +517,7 @@ for i = 1, #CurrentLog do
                     yield("/tpm " .. ZoneName)
                     yield("/wait 10.54")
                 else
-                    while not IsInZone(tonumber(mobZone)) do     -- addresses getting attacked during tp
+                    while not IsInZone(tonumber(mobZone)) do -- addresses getting attacked during tp
                         yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
                         yield("/wait 10.54")
                         while GetCharacterCondition(26) do
@@ -542,7 +542,7 @@ for i = 1, #CurrentLog do
                 rawZ = GetFlagYCoord()
             end
             yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
-            if HasFlightUnlocked(GetZoneID()) and not (IsInZone(146) or IsInZone(180)) then     -- vnavmesh has problems in Outer La Noscea and Southern Thanalan
+            if HasFlightUnlocked(GetZoneID()) and not (IsInZone(146) or IsInZone(180)) then -- vnavmesh has problems in Outer La Noscea and Southern Thanalan
                 yield("/gaction jump")
             end
             yield("/wait 1")
@@ -603,7 +603,7 @@ for i = 1, #CurrentLog do
                 while GetCharacterCondition(26) == true do
                     yield("/echo In combat against " .. GetTargetName())
                     if HasTarget() == false then
-                        yield("/battletarget")     -- if other mobs are attacking you
+                        yield("/battletarget") -- if other mobs are attacking you
                         yield("/wait 1")
                         PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
                         while PathIsRunning() or PathfindInProgress() do
@@ -629,3 +629,4 @@ for i = 1, #CurrentLog do
     end
 end
 yield("/echo Finished hunt log for Rank " .. rankToDo .. "!")
+yield("/li auto")
