@@ -5,7 +5,7 @@
 1. Make sure to set up your paths. Use the Lua path setting in the SND help config.
    
 Like this:
-![screenshot](https://github.com/CacahuetesManu/SND/blob/main/Hunt Log Doer/Docs/LuaPaths.png)
+![screenshot](https://github.com/CacahuetesManu/SND/blob/main/Hunt%20Log%20Doer/Docs/LuaPaths.png)
 
 2. Change RSR to attack ALL enemies when solo, or previously engaged.
 
