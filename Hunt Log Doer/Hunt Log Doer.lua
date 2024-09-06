@@ -27,6 +27,7 @@
     -> vbm : https://puni.sh/api/repository/veyn
     -> SomethingNeedDoing (Expanded Edition) [Make sure to press the lua button when you import this] -> https://puni.sh/api/repository/croizat
     -> Teleporter:
+    -> Lifestream
 
     *****************************
     *  Required Plugin Settings *
