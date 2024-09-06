@@ -473,153 +473,159 @@ end
 *******************
 ]]
 
-while rankToDo < 6 do
-    yield("Doing the hunt log! Looking for next available mob.")
 
-    -- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
-    ClassorGCID()
-    json.traverse(stringmonsters, my_callback)
+yield("Doing the hunt log! Looking for next available mob.")
 
-    -- Now we loop through the table and extract each mob, territory, location and kills needed in order to execute our hunt log doer
+-- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
+ClassorGCID()
+json.traverse(stringmonsters, my_callback)
 
-    for i = 1, #CurrentLog do
-        if IsNodeVisible("MonsterNote", 1) == false then
-            yield("/hlog")
-        end
-        loadupHuntlog()
-        for j = 1, #CurrentLog[i].Monsters do
-            mobName = CurrentLog[i].Monsters[j].Name
-            if IncompleteTargets() == mobName then
-                KillsNeeded = CurrentLog[i].Monsters[j].Count
-                mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
-                mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
-                mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
-                mobZ = CurrentLog[i].Monsters[j].Locations[1].zCoord
-                ZoneName = Territories[tostring(mobZone)]
+-- Now we loop through the table and extract each mob, territory, location and kills needed in order to execute our hunt log doer
 
-                yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
+for i = 1, #CurrentLog do
+    if IsNodeVisible("MonsterNote", 1) == false then
+        yield("/hlog")
+    end
+    loadupHuntlog()
+    for j = 1, #CurrentLog[i].Monsters do
+        mobName = CurrentLog[i].Monsters[j].Name
+        if IncompleteTargets() == mobName then
+            KillsNeeded = CurrentLog[i].Monsters[j].Count
+            mobZone = CurrentLog[i].Monsters[j].Locations[1].Terri
+            mobX = CurrentLog[i].Monsters[j].Locations[1].xCoord
+            mobY = CurrentLog[i].Monsters[j].Locations[1].yCoord
+            mobZ = CurrentLog[i].Monsters[j].Locations[1].zCoord
+            ZoneName = Territories[tostring(mobZone)]
 
-                if IsInZone(tonumber(mobZone)) then
-                    --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
-                    if mobZ then
-                        SetMapFlag(mobZone, mobX, mobY, mobZ)
-                        yield("/echo Using better coordinates.")
-                    else
-                        yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
-                        yield("/wait 1")
-                    end
-                    --If you are in the same zone, no need to teleport
+            yield("/echo " .. mobName .. " in " .. ZoneName .. " is next! We need " .. KillsNeeded)
+
+            if IsInZone(tonumber(mobZone)) then
+                --Here we use a plugin called ChatCoordinates to make a flag and teleport to the zone
+                if mobZ then
+                    SetMapFlag(mobZone, mobX, mobY, mobZ)
+                    yield("/echo Using better coordinates.")
                 else
-                    if mobZ then
-                        SetMapFlag(mobZone, mobX, mobY, mobZ)
-                        yield("/wait 1")
-                        yield("/echo Using better coordinates.")
-                        yield("/tpm " .. ZoneName)
+                    yield("/coord " .. mobX .. " " .. mobY .. " :" .. ZoneName)
+                    yield("/wait 1")
+                end
+                --If you are in the same zone, no need to teleport
+            else
+                if mobZ then
+                    SetMapFlag(mobZone, mobX, mobY, mobZ)
+                    yield("/wait 1")
+                    yield("/echo Using better coordinates.")
+                    yield("/tpm " .. ZoneName)
+                    yield("/wait 10.54")
+                else
+                    while not IsInZone(tonumber(mobZone)) do     -- addresses getting attacked during tp
+                        yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
                         yield("/wait 10.54")
-                    else
-                        while not IsInZone(tonumber(mobZone)) do -- addresses getting attacked during tp
-                            yield("/ctp " .. mobX .. " " .. mobY .. " :" .. ZoneName)
-                            yield("/wait 10.54")
-                            while GetCharacterCondition(26) do
-                                yield("/battletarget")
-                                yield("/wait 1")
-                                PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
-                                unstucktarget()
-                                yield("/wait 1")
-                            end
+                        while GetCharacterCondition(26) do
+                            yield("/battletarget")
+                            yield("/wait 1")
+                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                            unstucktarget()
+                            yield("/wait 1")
                         end
                     end
                 end
-                -- Now convert those simple map coordinates to RAW coordinates that vnav uses
+            end
+            -- Now convert those simple map coordinates to RAW coordinates that vnav uses
 
-                if mobZ then
-                    rawX = mobX
-                    rawY = mobY
-                    rawZ = mobZ
-                else
-                    rawX = GetFlagXCoord()
-                    rawY = 1024
-                    rawZ = GetFlagYCoord()
-                end
-                yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
-                if HasFlightUnlocked(GetZoneID()) and not (IsInZone(146) or IsInZone(180)) then -- vnavmesh has problems in Outer La Noscea and Southern Thanalan
-                    yield("/gaction jump")
-                end
-                yield("/wait 1")
+            if mobZ then
+                rawX = mobX
+                rawY = mobY
+                rawZ = mobZ
+            else
+                rawX = GetFlagXCoord()
+                rawY = 1024
+                rawZ = GetFlagYCoord()
+            end
+            yield("/echo Position acquired X= " .. rawX .. ", Y= " .. rawY .. ", Z= " .. rawZ)
+            if HasFlightUnlocked(GetZoneID()) and not (IsInZone(146) or IsInZone(180)) then     -- vnavmesh has problems in Outer La Noscea and Southern Thanalan
+                yield("/gaction jump")
+            end
+            yield("/wait 1")
 
-                MountandMovetoFlag()
+            MountandMovetoFlag()
 
-                -- Wait until you stop moving and when you reach your destination, unmount
+            -- Wait until you stop moving and when you reach your destination, unmount
 
-                while IsMoving() == true or PathIsRunning() == true or PathfindInProgress() == true do
-                    yield("/echo Moving to next area...")
-                    yield("/wait 2")
-                end
+            while IsMoving() == true or PathIsRunning() == true or PathfindInProgress() == true do
+                yield("/echo Moving to next area...")
+                yield("/wait 1.0018")
+            end
 
-                if IsMoving() == false then
+            if IsMoving() == false then
+                yield("/wait 2.001")
+                if GetCharacterCondition(4) == true then
+                    yield("/vnavmesh stop")
+                    yield("/gaction dismount")
+                    PathStop()
+                    yield("/vnavmesh stop")
                     yield("/wait 2.001")
-                    if GetCharacterCondition(4) == true then
-                        yield("/vnavmesh stop")
-                        yield("/gaction dismount")
-                        PathStop()
-                        yield("/vnavmesh stop")
-                        yield("/wait 2.001")
-                        yield("/gaction dismount")
-                    end
+                    yield("/gaction dismount")
                 end
+            end
 
 
-                yield("/rotation manual")
-                yield("/vbmai on")
-                yield("/vbmai followtarget on")
-                yield("/vbmai followoutofcombat on")
-                yield("/vbmai followcombat on")
+            yield("/rotation manual")
+            yield("/vbmai on")
+            yield("/vbmai followtarget on")
+            yield("/vbmai followoutofcombat on")
+            yield("/vbmai followcombat on")
 
 
+            if IsNodeVisible("MonsterNote", 1) == false then
+                yield("/hlog")
+            end
+            loadupHuntlog()
+
+            while IncompleteTargets() == mobName do
+                yield("/echo Killing " .. mobName .. "s in progress...")
                 if IsNodeVisible("MonsterNote", 1) == false then
                     yield("/hlog")
                 end
                 loadupHuntlog()
-
-                while IncompleteTargets() == mobName do
-                    yield("/echo Killing " .. mobName .. "s in progress...")
-                    if IsNodeVisible("MonsterNote", 1) == false then
-                        yield("/hlog")
-                    end
-                    loadupHuntlog()
-                    if GetCharacterCondition(26) == false then
-                        yield("/target " .. mobName)
-                        yield("/wait 1")
-                        if HasTarget() then
-                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
-                            unstucktarget()
-                            yield("/wait 1")
-                        end
-                    end
-                    while PathIsRunning() or PathfindInProgress() do
-                        yield("/echo Found " .. mobName .. " moving closer.")
-                        yield("/wait 1")
-                    end
-                    while GetCharacterCondition(26) == true do
-                        yield("/echo In combat against " .. GetTargetName())
-                        if HasTarget() == false then
-                            yield("/battletarget") -- if other mobs are attacking you
-                            yield("/wait 1")
-                            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
-                            unstucktarget()
-                            yield("/wait 1")
-                        end
+                if GetCharacterCondition(26) == false then
+                    yield("/target " .. mobName)
+                    yield("/wait 1")
+                    if HasTarget() then
+                        PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
                         yield("/wait 1")
                     end
                 end
-
-                yield("/echo Nice job! On to the next one")
-                yield("/rotation off")
-                yield("/vbmai off")
+                while PathIsRunning() or PathfindInProgress() do
+                    yield("/echo Found " .. mobName .. " moving closer.")
+                    unstucktarget()
+                    yield("/wait 1")
+                end
+                while GetCharacterCondition(26) == true do
+                    yield("/echo In combat against " .. GetTargetName())
+                    if HasTarget() == false then
+                        yield("/battletarget")     -- if other mobs are attacking you
+                        yield("/wait 1")
+                        PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                        while PathIsRunning() or PathfindInProgress() do
+                            yield("/echo Attacking " .. mobName .. " moving closer.")
+                            unstucktarget()
+                            yield("/wait 1")
+                        end
+                        yield("/wait 1")
+                    end
+                    yield("/wait 1")
+                end
+                while PathIsRunning() or PathfindInProgress() or IsMoving() do
+                    yield("/echo Waiting to stop moving.")
+                    unstucktarget()
+                    yield("/wait 1")
+                end
             end
+
+            yield("/echo Nice job! On to the next one")
+            yield("/rotation off")
+            yield("/vbmai off")
         end
     end
-    yield("/echo Finished hunt log for Rank " .. rankToDo .. "! Checking hunt log page.")
-    rankToDo = rankToDo + 1
 end
-::exitcode::
+yield("/echo Finished hunt log for Rank " .. rankToDo .. "!")
