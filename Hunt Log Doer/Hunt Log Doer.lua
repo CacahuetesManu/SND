@@ -1,11 +1,57 @@
---Choose either "class" to do your class log or "GC" to do your Grand Company Log
-route = "class"
---Choose what rank to start 1,2, 3, 4 or 5
-RankToDo = 1
--------------------REQUIRED FILES---------------------
----YOU NEED TO DOWNLOAD CHAT COORDINATES PLUGIN,Pandora, VNAVMESH, RSR, and vbm. Also make sure to enable Auto teleport to map coords with pandora (white list the echo channel).
+--[[
 
---Load Required Files
+    *******************
+    * Hunt Log Doer  *
+    *******************
+
+    *************************
+    *  Version -> 0.0.1.0  *
+    *************************
+
+    Version Notes:
+    0.0.1.0  ->    The official versioning of this script begins now. I spent time getting the actual coordinates for the GC log mobs, but the class log mobs still use publicly available coordinates, which are highly inaccurate. pot0to cleaned up a bunch of things, especially a bug that was causing errors with the job to class conversion. I streamlined the pathing process. Originally it used node pathing from Mootykins.
+
+    ***************
+    * Description *
+    ***************
+
+    A SND Lua script that allows you to loop through all the incomplete mobs in your hunt log for a given class/GC and rank.
+
+    *********************
+    *  Required Plugins *
+    *********************
+    -> Chat Coordinates:
+    -> Pandora [Make sure to enable Auto teleport to map coords with pandora (white list the echo channel)]:
+    -> vnavmesh: https://puni.sh/api/repository/veyn
+    -> RSR:
+    -> vbm : https://puni.sh/api/repository/veyn
+    -> SomethingNeedDoing (Expanded Edition) [Make sure to press the lua button when you import this] -> https://puni.sh/api/repository/croizat
+    -> Teleporter: 
+
+    *****************************
+    *  Required Plugin Settings *
+    *****************************
+    -> Pandora:
+                1. Make sure to enable Auto teleport to map coords with pandora (white list the echo channel
+    -> SomethingNeedDoing (Expanded Edition):
+                1. Make sure to press the lua button when you import this
+                2. Make sure to set up your paths. Use the Lua path setting in the SND help config.
+    -> RSR:
+                1. Change RSR to attack ALL enemies when solo, or previously engaged.
+    ***********
+    * Credits *
+    ***********
+
+    Author(s): CacahuetesManu | pot0to
+    Functions borrowed from: McVaxius, Umbra, LeafFriend, plottingCreeper and Mootykins
+]]
+
+--[[
+********************************
+*  Helper Functions and Files  *
+********************************
+]]
+
 --JSON handler is from https://github.com/Egor-Skriptunoff/json4lua/blob/master/json.lua
 local json = require("json")
 
@@ -13,13 +59,33 @@ local json = require("json")
 require("Territories")
 --Monster log is from Hunty Plugin https://github.com/Infiziert90/Hunty/tree/mas
 open = io.open
-
---CHANGE THIS PATH
 monsters = open(os.getenv("appdata") .. "\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\monsters.json")
 local stringmonsters = monsters:read "*a"
 monsters:close()
 
----------------------REQUIRED FUNCTIONS-------------------------
+--[[
+**************
+*  Settings  *
+**************
+]]
+
+--Choose either "class" to do your class log or "GC" to do your Grand Company Log
+local route = "GC"
+--Choose what rank to start 1,2, 3, 4 or 5
+local rankToDo = 1
+--Walk or Fly?
+local mount = true -- have you unlocked mounts yet?
+local move_type = "walk"
+--These variables help with pathing and are used for unstucking
+local interval_rate = 0.5
+local timeout_threshold = 3
+local ping_radius = 20
+
+--[[
+************************
+*  Required Functions  *
+************************
+]]
 
 -- Call user provided input to figure out if we should work on Class Log or Hunt Log
 
@@ -45,18 +111,12 @@ local function my_callback(path, json_type, value)
     if
         #path == 4
         and path[#path - 2] == LogFinder
-        and path[#path - 1] == RankToDo
+        and path[#path - 1] == rankToDo
     then
         CurrentLog = value
         return true
     end
 end
-
--- The following Functions I got from : credit: LeafFriend, plottingCreeper and Mootykins. I adapted to meet the needs of this script. I also got functions from Umbra, they help with unstucking!
-
-interval_rate = 0.5
-timeout_threshold = 3
-ping_radius = 10
 
 function Truncate1Dp(num)
     return truncate and ("%.1f"):format(num) or num
@@ -115,7 +175,7 @@ end
 function MountFly()
     if HasFlightUnlocked(GetZoneID()) then
         while not GetCharacterCondition(4) do
-            yield('/gaction "Mount Roulette"')
+            yield('/mount "Company Chocobo"')
             repeat
                 yield("/wait " .. interval_rate)
             until not IsPlayerCasting() and not GetCharacterCondition(57)
@@ -169,7 +229,7 @@ function Dismount()
             end
         until not PathIsRunning()
 
-        yield('/gaction "Mount Roulette"')
+        yield('/mount "Company Chocobo"')
 
         timeout_start = os.clock()
         repeat
@@ -181,150 +241,143 @@ function Dismount()
         until not GetCharacterCondition(77)
     end
     if GetCharacterCondition(4) then
-        yield('/gaction "Mount Roulette"')
+        yield('/mount "Company Chocobo"')
         repeat
             yield("/wait " .. interval_rate)
         until not GetCharacterCondition(4)
     end
 end
 
-function NodeMoveFly(node, force_moveto)
-    local force_moveto = force_moveto or false
-    local x = tonumber(ParseNodeDataString(node)[2]) or 0
-    local y = tonumber(ParseNodeDataString(node)[3]) or 0
-    local z = tonumber(ParseNodeDataString(node)[4]) or 0
-    last_move_type = last_move_type or "NA"
-
+function NodeMoveFly()
     CheckNavmeshReady()
-    start_pos = Truncate1Dp(GetPlayerRawXPos()) ..
-        "," .. Truncate1Dp(GetPlayerRawYPos()) .. "," .. Truncate1Dp(GetPlayerRawZPos())
-    if not force_moveto and ((GetCharacterCondition(4) and GetCharacterCondition(77)) or GetCharacterCondition(81)) then
-        last_move_type = "fly"
-        PathfindAndMoveTo(x, y, z, true)
+    if mount == true and move_type == "fly" then
+        MountFly()
+        yield("/vnav flyflag")
+    elseif mount == true and move_type == "walk" then
+        while not GetCharacterCondition(4) do
+            yield('/mount "Company Chocobo"')
+            repeat
+                yield("/wait " .. interval_rate)
+            until not IsPlayerCasting() and not GetCharacterCondition(57)
+        end
+        yield("/vnav moveflag")
     else
-        last_move_type = "walk"
-        PathfindAndMoveTo(x, y, z)
-    end
-    while PathfindInProgress() do
-        yield("/wait " .. interval_rate)
+        yield("/vnav moveflag")
     end
 end
 
-function DiscoverNodeViaAction()
+function unstuckflag()
+    if PathIsRunning() then
+        local retry_timer = 0
+        while PathIsRunning() do
+            local success1, x1 = pcall(GetPlayerRawXPos)
+            local success2, y1 = pcall(GetPlayerRawYPos)
+            local success3, z1 = pcall(GetPlayerRawZPos)
+            if not (success1 and success2 and success3) then
+                goto continue
+            end
+            yield("/wait 2.0034")
+            local success4, x2 = pcall(GetPlayerRawXPos)
+            local success5, y2 = pcall(GetPlayerRawYPos)
+            local success6, z2 = pcall(GetPlayerRawZPos)
+            if not (success4 and success5 and success6) then
+                goto continue
+            end
+            if WithinThreeUnits(x1, y1, z1, x2, y2, z2) and PathIsRunning() then
+                yield("/vnav stop")
+                retry_timer = retry_timer + 1
+                yield("/vnav reload")
+                NodeMoveFly()
+                yield("/wait 1.0034")
+            elseif retry_time == 4 then
+                yield("/vnav reload")
+                yield("/target " .. mobName)
+                yield("/wait 1.0021")
+                if HasTarget() then
+                    PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                    yield("/wait 1.0035")
+                end
+                retry_timer = retry_timer + 1
+            elseif retry_time == 8 then
+                yield("/vnav stop")
+                yield("/echo Pathing failed")
+                --Go back home somewhere
+                yield("/li auto")
+                yield("/pcraft stop")
+            else
+                retry_timer = 0
+            end
+            ::continue::
+        end
+    end
+end
+
+function unstucktarget()
+    if PathIsRunning() then
+        local retry_timer = 0
+        while PathIsRunning() do
+            local success1, x1 = pcall(GetPlayerRawXPos)
+            local success2, y1 = pcall(GetPlayerRawYPos)
+            local success3, z1 = pcall(GetPlayerRawZPos)
+            if not (success1 and success2 and success3) then
+                goto continue
+            end
+            yield("/wait 2.0034")
+            local success4, x2 = pcall(GetPlayerRawXPos)
+            local success5, y2 = pcall(GetPlayerRawYPos)
+            local success6, z2 = pcall(GetPlayerRawZPos)
+            if not (success4 and success5 and success6) then
+                goto continue
+            end
+            if WithinThreeUnits(x1, y1, z1, x2, y2, z2) and PathIsRunning() then
+                yield("/vnav stop")
+                retry_timer = retry_timer + 1
+                yield("/vnav reload")
+                yield("/wait 1.0034")
+            elseif retry_time == 4 then
+                yield("/vnav reload")
+                yield("/target " .. mobName)
+                yield("/wait 1.0021")
+                if HasTarget() then
+                    PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                    yield("/wait 1.0035")
+                end
+                retry_timer = retry_timer + 1
+            elseif retry_time == 8 then
+                yield("/vnav stop")
+                yield("/echo Pathing failed")
+                --Go back home somewhere
+                yield("/li auto")
+                yield("/pcraft stop")
+            else
+                retry_timer = 0
+            end
+            ::continue::
+        end
+    end
+end
+
+function MountandMovetoFlag()
     if IsInZone(GetFlagZone()) == true then
         MountFly()
         local rng_offset = 0
         ::APPROXPATH_START::
         CheckNavmeshReady()
-        local x, y, z
-        local i = 0
-        while not x or not y or not z do
-            local target_point = {
-                x = rawX + math.random(0, rng_offset),
-                y = rawY,
-                z = rawZ + math.random(0, rng_offset),
-            }
-            x = QueryMeshPointOnFloorX(target_point.x, target_point.y, target_point.z, false, i)
-            y = QueryMeshPointOnFloorY(target_point.x, target_point.y, target_point.z, false, i)
-            z = QueryMeshPointOnFloorZ(target_point.x, target_point.y, target_point.z, false, i)
-            i = i + 1
-        end
 
-        local timeout_start = os.clock()
-        repeat
-            yield("/wait " .. interval_rate)
-            if os.clock() - timeout_start > timeout_threshold then
-                yield("/echo Failed to navigate to approximate flag position.")
-                yield("/echo Trying another place near it...")
-                rng_offset = rng_offset + 1
-                goto APPROXPATH_START
-            end
-        until not PathIsRunning()
 
-        local node = string.format("NAMENOTGIVEN,%1.f,%1.f,%1.f", x, y, z)
+        local node = string.format("NAMENOTGIVEN,%1.f,%1.f,%1.f", rawX, rawY, rawZ)
 
-        NodeMoveFly(node)
+
+        NodeMoveFly()
 
         repeat
             yield("/wait " .. interval_rate)
-
-            if PathIsRunning() then
-                local retry_timer = 0
-                while PathIsRunning() do
-                    local success1, x1 = pcall(GetPlayerRawXPos)
-                    local success2, y1 = pcall(GetPlayerRawYPos)
-                    local success3, z1 = pcall(GetPlayerRawZPos)
-                    if not (success1 and success2 and success3) then
-                        goto continue
-                    end
-                    yield("/wait 2.0034")
-                    local success4, x2 = pcall(GetPlayerRawXPos)
-                    local success5, y2 = pcall(GetPlayerRawYPos)
-                    local success6, z2 = pcall(GetPlayerRawZPos)
-                    if not (success4 and success5 and success6) then
-                        goto continue
-                    end
-                    if WithinThreeUnits(x1, y1, z1, x2, y2, z2) and PathIsRunning() then
-                        yield("/vnav stop")
-                        retry_timer = retry_timer + 1
-                        if retry_timer > 4 then -- 4 would be about 8 seconds, with some extra time since it waits a second after reloading
-                            yield("/vnav rebuild")
-                        else
-                            yield("/vnav reload")
-                        end
-                        yield("/wait 1.0034")
-                    else
-                        retry_timer = 0
-                    end
-                    ::continue::
-                end
-            end
+            unstuckflag()
         until GetDistanceToNode(node) < ping_radius
         StopMoveFly()
         Dismount()
         return true
     end
-end
-
-function TargetNearestObjectKind()
-    local radius = 100
-    local subKind = subKind or 5
-    local nearby_objects = GetNearbyObjectNames(radius ^ 2, 2)
-    local names = {}
-
-    if nearby_objects and type(nearby_objects) == "userdata" and nearby_objects.Count > 0 then
-        for i = 0, nearby_objects.Count - 1 do
-            if names[nearby_objects[i]] == nil then
-                names[nearby_objects[i]] = 0
-            else
-                names[nearby_objects[i]] = names[nearby_objects[i]] + 1
-            end
-
-            local target = nearby_objects[i] .. " <list." .. names[nearby_objects[i]] .. ">"
-
-            TargetWithSND(target)
-
-            if not GetTargetName() or nearby_objects[i] ~= GetTargetName()
-                or (mobName ~= GetTargetName())
-                or (objectKind ~= 2)
-                or (objectKind ~= 2 and subKind == GetTargetSubKind() and GetTargetHPP() <= 0) then
-            else
-                PathMoveTo(GetObjectRawXPos(nearby_objects[i]), GetObjectRawYPos(nearby_objects[i]),
-                    GetObjectRawYPos(nearby_objects[i]))
-                break
-            end
-        end
-        TargetWithSND(target)
-    end
-end
-
-function TargetWithSND(target_name)
-    local user_settings = { GetSNDProperty("UseSNDTargeting"), GetSNDProperty("StopMacroIfTargetNotFound") }
-    SetSNDProperty("UseSNDTargeting", "true")
-    SetSNDProperty("StopMacroIfTargetNotFound", "false")
-    yield("/target " .. target_name)
-    SetSNDProperty("UseSNDTargeting", tostring(user_settings[1]))
-    SetSNDProperty("StopMacroIfTargetNotFound", tostring(user_settings[2]))
 end
 
 function ClassorGCID()
@@ -349,7 +402,7 @@ end
 
 function loadupHuntlog()
     ClassID = GetClassJobId()
-    rank = RankToDo - 1
+    rank = rankToDo - 1
     yield("/wait 1")
     if ClassID == 1 or ClassID == 19 then
         pcallClassID = 0 -- Gladiator
@@ -409,9 +462,13 @@ function IncompleteTargets(route)
     return NextIncompleteTarget
 end
 
------------------------------------START OF CODE-------------------------------------------------------
+--[[
+*******************
+*  Start of Code  *
+*******************
+]]
 
-while RankToDo < 6 do
+while rankToDo < 6 do
     yield("Doing the hunt log! Looking for next available mob.")
 
     -- This function traverses through the JSON and saves the data we want into a more specific table called "CurrentLog"
@@ -451,7 +508,8 @@ while RankToDo < 6 do
                     if mobZ then
                         SetMapFlag(mobZone, mobX, mobY, mobZ)
                         yield("/wait 1")
-                        yield("/echo Using better coordinates. Pandora, take us to <flag>")
+                        yield("/echo Using better coordinates.")
+                        yield("/tpm "..ZoneName)
                         yield("/wait 10.54")
                     else
                         while not IsInZone(tonumber(mobZone)) do -- addresses getting attacked during tp
@@ -461,20 +519,12 @@ while RankToDo < 6 do
                                 yield("/battletarget")
                                 yield("/wait 1")
                                 PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                                unstucktarget()
                                 yield("/wait 1")
                             end
                         end
                     end
                 end
-
-                if HasFlightUnlocked(GetZoneID()) then
-                    --Mount up if needed
-                    if GetCharacterCondition(4) == false then
-                        yield('/gaction "mount roulette"')
-                        yield("/wait 3.54")
-                    end
-                end
-
                 -- Now convert those simple map coordinates to RAW coordinates that vnav uses
 
                 if mobZ then
@@ -492,7 +542,7 @@ while RankToDo < 6 do
                 end
                 yield("/wait 1")
 
-                DiscoverNodeViaAction()
+                MountandMovetoFlag()
 
                 -- Wait until you stop moving and when you reach your destination, unmount
 
@@ -537,6 +587,7 @@ while RankToDo < 6 do
                         yield("/wait 1")
                         if HasTarget() then
                             PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                            unstucktarget()
                             yield("/wait 1")
                         end
                     end
@@ -550,6 +601,7 @@ while RankToDo < 6 do
                             yield("/battletarget") -- if other mobs are attacking you
                             yield("/wait 1")
                             PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+                            unstucktarget()
                             yield("/wait 1")
                         end
                         yield("/wait 1")
@@ -562,6 +614,7 @@ while RankToDo < 6 do
             end
         end
     end
-    yield("/echo Finished hunt log for Rank " .. RankToDo .. "! Checking hunt log page.")
-    RankToDo = RankToDo + 1
+    yield("/echo Finished hunt log for Rank " .. rankToDo .. "! Checking hunt log page.")
+    rankToDo = rankToDo + 1
 end
+::exitcode::
