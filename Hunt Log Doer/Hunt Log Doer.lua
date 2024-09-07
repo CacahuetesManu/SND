@@ -27,7 +27,6 @@
     -> vbm : https://puni.sh/api/repository/veyn
     -> SomethingNeedDoing (Expanded Edition) [Make sure to press the lua button when you import this] -> https://puni.sh/api/repository/croizat
     -> Teleporter:
-    -> Lifestream
 
     *****************************
     *  Required Plugin Settings *
@@ -81,7 +80,7 @@ local move_type = "walk"
 local interval_rate = 0.5
 local timeout_threshold = 3
 local ping_radius = 20
-
+local killtimeout_threshold = 180
 --[[
 ************************
 *  Required Functions  *
@@ -295,7 +294,7 @@ function unstuckflag()
                 yield("/wait 1.0034")
             elseif retry_time == 4 then
                 yield("/vnav reload")
-                yield("/target " .. mobName)
+                yield("/target \"" .. mobName .. "\"")
                 yield("/wait 1.0021")
                 if HasTarget() then
                     PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
@@ -342,7 +341,7 @@ function unstucktarget()
                 yield("/wait 1.0034")
             elseif retry_time == 4 then
                 yield("/vnav reload")
-                yield("/target " .. mobName)
+                yield("/target \"" .. mobName .. "\"")
                 yield("/wait 1.0021")
                 if HasTarget() then
                     PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
@@ -443,7 +442,7 @@ function loadupHuntlog()
 end
 
 --Wrapper handling to show incomplete targets
-function IncompleteTargets(route)
+function IncompleteTargets()
     if GetNodeText("MonsterNote", 2, 18, 4) == "Heckler Imp" then
         NextIncompleteTarget = GetNodeText("MonsterNote", 2, 21, 4)
     elseif GetNodeText("MonsterNote", 2, 18, 4) == "Temple Bee" then
@@ -468,6 +467,12 @@ function IncompleteTargets(route)
     return NextIncompleteTarget
 end
 
+function OpenHuntlog()
+    if IsNodeVisible("MonsterNote", 1) == false then
+        yield("/hlog")
+    end
+end
+
 --[[
 *******************
 *  Start of Code  *
@@ -484,9 +489,7 @@ json.traverse(stringmonsters, my_callback)
 -- Now we loop through the table and extract each mob, territory, location and kills needed in order to execute our hunt log doer
 
 for i = 1, #CurrentLog do
-    if IsNodeVisible("MonsterNote", 1) == false then
-        yield("/hlog")
-    end
+    OpenHuntlog()
     loadupHuntlog()
     for j = 1, #CurrentLog[i].Monsters do
         mobName = CurrentLog[i].Monsters[j].Name
@@ -577,19 +580,16 @@ for i = 1, #CurrentLog do
             yield("/vbmai followcombat on")
 
 
-            if IsNodeVisible("MonsterNote", 1) == false then
-                yield("/hlog")
-            end
+            OpenHuntlog()
             loadupHuntlog()
-
+            killtimeout_start = os.clock
             while IncompleteTargets() == mobName do
                 yield("/echo Killing " .. mobName .. "s in progress...")
-                if IsNodeVisible("MonsterNote", 1) == false then
-                    yield("/hlog")
-                end
+                OpenHuntlog()
+
                 loadupHuntlog()
                 if GetCharacterCondition(26) == false then
-                    yield("/target " .. mobName)
+                    yield("/target \"" .. mobName .. "\"")
                     yield("/wait 1")
                     if HasTarget() then
                         PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
@@ -599,6 +599,7 @@ for i = 1, #CurrentLog do
                 while PathIsRunning() or PathfindInProgress() do
                     yield("/echo Found " .. mobName .. " moving closer.")
                     unstucktarget()
+
                     yield("/wait 1")
                 end
                 while GetCharacterCondition(26) == true do
@@ -610,6 +611,7 @@ for i = 1, #CurrentLog do
                         while PathIsRunning() or PathfindInProgress() do
                             yield("/echo Attacking " .. mobName .. " moving closer.")
                             unstucktarget()
+
                             yield("/wait 1")
                         end
                         yield("/wait 1")
@@ -620,6 +622,9 @@ for i = 1, #CurrentLog do
                     yield("/echo Waiting to stop moving.")
                     unstucktarget()
                     yield("/wait 1")
+                end
+                if (os.clock() - killtimeout_start > killtimeout_threshold) or IncompleteTargets == nil then
+                    break
                 end
             end
 
