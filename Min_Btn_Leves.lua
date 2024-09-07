@@ -397,6 +397,7 @@ function AcceptLeves()
                     yield("/wait 0.5028")
                 end
             end
+            yield("/echo Looking for Quest matches...")
             yield("/wait 1.0874")
         end
     end
@@ -422,21 +423,20 @@ yield("/wait 1.091")
 yield("/callback GuildLeve true -1")
 yield("/wait 1")
 yield("/callback SelectString true 4")
-yield("/echo hell12oo")
+
 
 for key, values in pairs(levecoords) do
-    yield("/echo helloo")
     if whitelist[key] then
         Whichleve = key
-        yield("/echo hellooooo")
+
         NodeSelection = levecoords[Whichleve].slot - 1
 
         rawX = levecoords[Whichleve].X
         rawY = levecoords[Whichleve].Y
         rawZ = levecoords[Whichleve].Z
-        yield("/echo hello009oooo")
-        SetMapFlag(levecoords[Whichleve].Zone, rawX, rawY, rawZ)
-        yield("/echo hellooo967oo")
+
+        SetMapFlag(GetZoneID(), rawX, rawY, rawZ)
+
         MountandMovetoFlag()
 
 
