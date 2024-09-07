@@ -80,7 +80,7 @@ local move_type = "walk"
 local interval_rate = 0.5
 local timeout_threshold = 3
 local ping_radius = 20
-local killtimeout_threshold = 180
+local killtimeout_threshold = 30
 --[[
 ************************
 *  Required Functions  *
@@ -582,7 +582,7 @@ for i = 1, #CurrentLog do
 
             OpenHuntlog()
             loadupHuntlog()
-            killtimeout_start = os.clock
+            killtimeout_start = os.clock()
             while IncompleteTargets() == mobName do
                 yield("/echo Killing " .. mobName .. "s in progress...")
                 OpenHuntlog()
@@ -623,8 +623,11 @@ for i = 1, #CurrentLog do
                     unstucktarget()
                     yield("/wait 1")
                 end
-                if (os.clock() - killtimeout_start > killtimeout_threshold) or IncompleteTargets == nil then
-                    break
+                if (os.clock() - killtimeout_start > killtimeout_threshold) then
+                    killtimeout_start = os.clock()
+                    yield("/hlog")
+                    yield("/wait 1")
+                    OpenHuntlog()
                 end
             end
 
