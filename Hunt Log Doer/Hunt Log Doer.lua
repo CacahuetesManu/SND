@@ -473,6 +473,18 @@ function OpenHuntlog()
     end
 end
 
+function hlogRefresh()
+    if (os.clock() - killtimeout_start > killtimeout_threshold) then
+        killtimeout_start = os.clock()
+        if type(killtimeout_start) ~= "number" then
+            killtimeout_start = 5
+        end
+        yield("/hlog")
+        yield("/wait 1")
+        OpenHuntlog()
+    end
+end
+
 --[[
 *******************
 *  Start of Code  *
@@ -582,7 +594,7 @@ for i = 1, #CurrentLog do
 
             OpenHuntlog()
             loadupHuntlog()
-            killtimeout_start = os.clock()
+            local killtimeout_start = os.clock()
             while IncompleteTargets() == mobName do
                 yield("/echo Killing " .. mobName .. "s in progress...")
                 OpenHuntlog()
@@ -623,17 +635,13 @@ for i = 1, #CurrentLog do
                     unstucktarget()
                     yield("/wait 1")
                 end
-                if (os.clock() - killtimeout_start > killtimeout_threshold) then
-                    killtimeout_start = os.clock()
-                    yield("/hlog")
-                    yield("/wait 1")
-                    OpenHuntlog()
-                end
+                hlogRefresh()
             end
-
-            yield("/echo Nice job! On to the next one")
-            yield("/rotation off")
-            yield("/vbmai off")
+            if GetCharacterCondition(26) == false then
+                yield("/echo Nice job! On to the next one")
+                yield("/rotation off")
+                yield("/vbmai off")
+            end
         end
     end
 end
