@@ -633,6 +633,7 @@ for i = 1, #CurrentLog do
                     yield("/wait 1")
                 end
                 hlogRefresh()
+                yield("/wait 2")
             end
             if GetCharacterCondition(26) == false then
                 yield("/echo Nice job! On to the next one")
