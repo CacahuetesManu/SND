@@ -474,11 +474,11 @@ function OpenHuntlog()
 end
 
 function hlogRefresh()
+    if type(killtimeout_start) ~= "number" then
+        killtimeout_start = 5
+    end
     if (os.clock() - killtimeout_start > killtimeout_threshold) then
         killtimeout_start = os.clock()
-        if type(killtimeout_start) ~= "number" then
-            killtimeout_start = 5
-        end
         yield("/hlog")
         yield("/wait 1")
         OpenHuntlog()
