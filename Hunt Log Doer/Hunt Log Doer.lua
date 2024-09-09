@@ -594,7 +594,7 @@ for i = 1, #CurrentLog do
 
             OpenHuntlog()
             loadupHuntlog()
-            local killtimeout_start = os.clock()
+            killtimeout_start = os.clock()
             while IncompleteTargets() == mobName do
                 yield("/echo Killing " .. mobName .. "s in progress...")
                 OpenHuntlog()
