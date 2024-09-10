@@ -50,8 +50,8 @@
 **************
 ]]
 --Choose either "Mining" or "Botany"
-classneeded = "Botany"
-Difficulty = 0
+classneeded = "Mining"
+Difficulty = 2
 
 --Walk or Fly?
 local mount = true -- have you unlocked mounts yet?
@@ -70,11 +70,6 @@ local ping_radius = 20
 ********************************
 ]]
 
-NPC = {
-    ["153"] = { Town = "Quarrymill", Name = "Nyell", X = 201.52588, Y = 9.736246, Z = -61.44812 }
-}
-
-
 blacklist = {
     ["Tag, You're It"] = true,     -- Does not play nice, do not activate
     ["Over the Underbush"] = true, -- in the middle of town. too many obstacles. Did not record the slot for this leve
@@ -84,18 +79,28 @@ blacklist = {
 levecoords = {
     --Quarrymill--
     --Mining--
-    ["Baby, Light My Way"] = { Type = "Mining", X = 305.13522, Y = 10.998776, Z = -187.67111, slot = 4, ID = 737, node = "Mineral Deposit" },
-    ["Can't Start a Fire"] = { Type = "Mining", X = 157.14229, Y = 17.953588, Z = -122.16721, slot = 8, ID = 735, node = "Mineral Deposit" },
-    ["Tag, You're It"] = { Type = "Mining", X = 169.9021, Y = 8.155407, Z = -55.027515, slot = 2, ID = 736, node = "Mineral Deposit" },
-    ["Fool Me Twice"] = { Type = "Mining", X = 257.7487, Y = 5.7759, Z = 50.023853, slot = 6, ID = 734, node = "Mineral Deposit" },
+    ["Baby, Light My Way"] = { Type = "Mining", X = 305.13522, Y = 10.998776, Z = -187.67111, slot = 4, ID = 737, node = "\"Mineral Deposit\"" },
+    ["Can't Start a Fire"] = { Type = "Mining", X = 157.14229, Y = 17.953588, Z = -122.16721, slot = 8, ID = 735, node = "\"Mineral Deposit\"" },
+    ["Tag, You're It"] = { Type = "Mining", X = 169.9021, Y = 8.155407, Z = -55.027515, slot = 2, ID = 736, node = "\"Mineral Deposit\"" },
+    ["Fool Me Twice"] = { Type = "Mining", X = 257.7487, Y = 5.7759, Z = 50.023853, slot = 6, ID = 734, node = "\"Mineral Deposit\"" },
     --Botany--
-    ["Nowhere to Slide"] = { Type = "Botany", X = -15.507979, Y = -1.5860113, Z = -53.834297, slot = 7, ID = 690, node = "Mature Tree" },
-    ["Appleanche"] = { Type = "Botany", X = 205.21, Y = 29.400064, Z = -159.53403, slot = 2, ID = 696, node = "Mature Tree" },
-    ["Moon in Rouge"] = { Type = "Botany", X = 169.97406, Y = 16.808193, Z = -149.16562, slot = 2, ID = 695, node = "Lush Vegetation Patch" },
-    ["Over the Underbush"] = { Type = "Botany", X = 191.24551, Y = 6.615365, Z = -46.26381, slot = 2, ID = 694, node = "Mature Tree" },
-    ["Fueling the Flames"] = { Type = "Botany", X = -184.36719, Y = 8.558928, Z = -48.451057, slot = 6, ID = 693, node = "Mature Tree" },
-    ["Mushroom Gobblin\'"] = { Type = "Botany", X = 305.94687, Y = -0.4670663, Z = -10.3980875, slot = 7, ID = 697, node = "Mature Tree" },
+    ["Nowhere to Slide"] = { Type = "Botany", X = -15.507979, Y = -1.5860113, Z = -53.834297, slot = 7, ID = 690, node = "\"Mature Tree\"" },
+    ["Appleanche"] = { Type = "Botany", X = 205.21, Y = 29.400064, Z = -159.53403, slot = 2, ID = 696, node = "\"Mature Tree\"" },
+    ["Moon in Rouge"] = { Type = "Botany", X = 169.97406, Y = 16.808193, Z = -149.16562, slot = 2, ID = 695, node = "\"Lush Vegetation Patch\"" },
+    ["Over the Underbush"] = { Type = "Botany", X = 191.24551, Y = 6.615365, Z = -46.26381, slot = 2, ID = 694, node = "\"Mature Tree\"" },
+    ["Fueling the Flames"] = { Type = "Botany", X = -184.36719, Y = 8.558928, Z = -48.451057, slot = 6, ID = 693, node = "\"Mature Tree\"" },
+    ["Mushroom Gobblin\'"] = { Type = "Botany", X = 305.94687, Y = -0.4670663, Z = -10.3980875, slot = 7, ID = 697, node = "\"Mature Tree\"" },
+    ["Just the Artifacts, Madam"] = { Type = "Botany", X = -211.08624, Y = 7.9936104, Z = 45.968987, slot = 8, ID = 692, node = "\"Mature Tree\"" },
     --Costa Del Sol--
+}
+
+NPC = {
+    ["153"] = { Town = "Quarrymill", Name = "Nyell", X = 201.52588, Y = 9.736246, Z = -61.44812 },
+    ["137"] = { Town = "Costa Del Sol", Name = "Nahctahr", X = 450.2173, Y = 17.484383, Z = 476.06412 }
+}
+
+NPCTurnin = {
+    ["137"] = { Town = "Costa Del Sol", Name = "F'abodji", X = 453.6095, Y = 17.748493, Z = 470.29822 }
 }
 
 --[[
@@ -375,15 +380,19 @@ function TargetedInteract(target)
     yield("/wait 1.001812")
     yield("/interact")
     repeat
-        yield("/wait 0.10018")
-        unstucktarget(target)
+        yield("/wait 1.10018")
+        if not PathIsRunning() and GetDistanceToTarget() > 2.5 then
+            yield("/vnav movetarget")
+            unstucktarget(target)
+        end
+        yield("/interact")
     until IsAddonReady("Gathering") or IsLeveComplete()
     yield("/vnav stop")
 end
 
 function IsLeveComplete()
     return WithinUnits(NPC[Zone].X, NPC[Zone].Y, NPC[Zone].Z, GetPlayerRawXPos(), GetPlayerRawYPos(), GetPlayerRawZPos(),
-        10)
+        6)
 end
 
 function AcceptLeves()
@@ -403,92 +412,97 @@ function AcceptLeves()
     end
 end
 
------------------
+--[[
+******************
+*  Start Script  *
+******************
+]]
+while true do
+    ---Accept Leves---
+    Zone = tostring(GetZoneID())
 
----Accept Leves---
-Zone = tostring(GetZoneID())
+    yield("/target " .. NPC[Zone].Name)
+    yield("/wait 1.089")
+    yield("/vnav movetarget")
+    yield("/wait 3.089")
+    yield("/interact")
+    yield("/wait 1.091")
+    yield("/callback SelectString true 1")
 
-yield("/target " .. NPC[Zone].Name)
-yield("/wait 1.089")
-yield("/vnav movetarget")
-yield("/wait 3.089")
-yield("/interact")
-yield("/wait 1.091")
-yield("/callback SelectString true 1")
+    AcceptLeves()
 
-AcceptLeves()
+    yield("/wait 1.091")
 
-yield("/wait 1.091")
-
-yield("/callback GuildLeve true -1")
-yield("/wait 1")
-yield("/callback SelectString true 4")
-
-
-for key, values in pairs(levecoords) do
-    if whitelist[key] then
-        Whichleve = key
-
-        NodeSelection = levecoords[Whichleve].slot - 1
-
-        rawX = levecoords[Whichleve].X
-        rawY = levecoords[Whichleve].Y
-        rawZ = levecoords[Whichleve].Z
-
-        SetMapFlag(GetZoneID(), rawX, rawY, rawZ)
-
-        MountandMovetoFlag()
+    yield("/callback GuildLeve true -1")
+    yield("/wait 1")
+    yield("/callback SelectString true 4")
 
 
-        --START LEVE
-        if IsNodeVisible("Journal", 1) == false then
-            yield("/journal")
+    for key, values in pairs(levecoords) do
+        if whitelist[key] then
+            Whichleve = key
+
+            NodeSelection = levecoords[Whichleve].slot - 1
+
+            rawX = levecoords[Whichleve].X
+            rawY = levecoords[Whichleve].Y
+            rawZ = levecoords[Whichleve].Z
+
+            SetMapFlag(GetZoneID(), rawX, rawY, rawZ)
+
+            MountandMovetoFlag()
+
+
+            --START LEVE
+            if IsNodeVisible("Journal", 1) == false then
+                yield("/journal")
+            end
+
+            yield("/wait 1.0012")
+
+            yield("/callback Journal true 13 " .. levecoords[Whichleve].ID .. " 2")
+
+            yield("/callback JournalDetail true 4 " .. levecoords[Whichleve].ID)
+
+            yield("/wait 1.00345")
+
+
+            yield("/callback GuildLeveDifficulty true 3 " .. Difficulty)
+            yield("/wait 1.00346")
+            yield("/callback GuildLeveDifficulty true 0 4")
+
+            --- Start Gathering --
+
+            while not IsLeveComplete() do
+                yield("/wait 1.00347")
+                yield("/target " .. levecoords[Whichleve].node)
+                yield("/wait 1.00348")
+                yield("/vnav movetarget")
+
+                TargetedInteract(levecoords[Whichleve].node)
+
+                repeat
+                    yield("/wait 0.10018")
+                    yield("/pcall Gathering true " .. NodeSelection)
+                    yield("/wait 0.10024")
+                    while GetCharacterCondition(42) and IsInZone(886) == false do
+                        yield("/wait 0.20013")
+                    end
+                until not IsAddonReady("Gathering")
+                yield("/wait 0.100165")
+            end
+
+
+
+            --Teleport back/ return leve
+            yield("/wait 5.089")
+            yield("/target Nyell")
+            yield("/wait 1.089")
+            yield("/interact")
+            yield("/wait 1.091")
+            yield("/callback SelectString true 0")
+            yield("/wait 2.091")
+            yield("/callback SelectString true 4")
         end
-
-        yield("/wait 1.0012")
-
-        yield("/callback Journal true 13 " .. levecoords[Whichleve].ID .. " 2")
-
-        yield("/callback JournalDetail true 4 " .. levecoords[Whichleve].ID)
-
-        yield("/wait 1.00345")
-
-
-        yield("/callback GuildLeveDifficulty true 3 " .. Difficulty)
-        yield("/wait 1.00346")
-        yield("/callback GuildLeveDifficulty true 0 4")
-
-        --- Start Gathering --
-
-        while not IsLeveComplete() do
-            yield("/wait 1.00347")
-            yield("/target " .. levecoords[Whichleve].node)
-            yield("/wait 1.00348")
-            yield("/vnav movetarget")
-
-            TargetedInteract(levecoords[Whichleve].node)
-
-            repeat
-                yield("/wait 0.10018")
-                yield("/pcall Gathering true " .. NodeSelection)
-                yield("/wait 0.10024")
-                while GetCharacterCondition(42) and IsInZone(886) == false do
-                    yield("/wait 0.20013")
-                end
-            until not IsAddonReady("Gathering")
-            yield("/wait 0.100165")
-        end
-
-
-
-        --Teleport back/ return leve
-        yield("/wait 5.089")
-        yield("/target Nyell")
-        yield("/wait 1.089")
-        yield("/interact")
-        yield("/wait 1.091")
-        yield("/callback SelectString true 0")
-        yield("/wait 2.091")
-        yield("/callback SelectString true 4")
     end
 end
